@@ -1,7 +1,11 @@
 import os
 import logging
+import json
+import uuid
+
 import subprocess
 from multiprocessing import Pool
+
 import numpy as np
 
 from .strategies import JobWorkflowStrategy
@@ -63,6 +67,7 @@ class AbaqusCalculation:
 	
 	def _run_extraction_hook_engine(self, hooks: list, common_args: dict) -> dict:
 		"""
+		obselete method, kept for backward compatibility.
 		通用的钩子执行引擎，可以运行任何提取脚本。
 		
 		Args:
@@ -79,8 +84,6 @@ class AbaqusCalculation:
 				command = ['python', script_path]
 			else:
 				command = [self.abaqus_exe, 'python', script_path]
-
-			# command = [self.abaqus_exe, 'python', script_path]
 
 			# 添加通用参数
 			for key, value in common_args.items():
@@ -119,32 +122,68 @@ class AbaqusCalculation:
 				self.logger.error(f"Captured full stderr:\n---\n{process.stderr}\n---")
 				results[result_name] = None
 		return results
+	
+	def _robust_json_extractor(self, text_output: str) -> dict:
+		json_start_index = text_output.find('{')
+		if json_start_index == -1:
+			raise ValueError("Unable to find '{'.")
+
+		json_candidate_string = text_output[json_start_index:]
+		
+		try:
+			return json.loads(json_candidate_string)
+		except json.JSONDecodeError as e:
+			# 如果失败（通常是因为尾部有无关数据），利用异常信息来切割出有效部分
+			try:
+				valid_json_part = json_candidate_string[:e.pos]
+				return json.loads(valid_json_part)
+			except json.JSONDecodeError:
+				# 如果这样仍然失败，说明JSON本身格式有问题
+				raise ValueError(f"无法解析截取出的JSON部分: '{valid_json_part[:100]}...'")
+
+	def _run_single_hook(self, script_path: str, tasks: list, common_args: dict) -> dict:
+		"""
+		Run a **single** extraction hook script with **multiple** tasks.
+		"""
+		if not tasks:
+			return {}
+		
+		# 缺点：需要创建一个临时json文件来传递任务列表
+		temp_json_path = os.path.join(self.output_dir, f"tasks_{uuid.uuid4().hex}.json")
+		
+		try:
+			with open(temp_json_path, 'w', encoding='utf-8') as f:
+				json.dump(tasks, f, indent=4)
+
+			if common_args.get('--inp_path'):
+				command = ['python', script_path]
+			else:
+				command = [self.abaqus_exe, 'python', script_path]
+
+			for key, value in common_args.items():
+				command.extend([key, value])
+			
+			command.extend(['--tasks_json', temp_json_path])
+			
+			process = subprocess.run(command, check=True, capture_output=True, text=True)
+			
+			out = self._robust_json_extractor(process.stdout)
+			print(process.stdout)
+			print(out)
+			return out
+
+		except Exception as e:
+			self.logger.error(f"执行钩子脚本 '{script_path}' 失败: {e}")
+			stderr_output = getattr(e, 'stderr', 'N/A')
+			stdout_output = getattr(e, 'stdout', 'N/A')
+			self.logger.error(f"Captured stderr:\n{stderr_output}")
+			self.logger.error(f"Captured stdout:\n{stdout_output}")
+			return {task['result_name']: None for task in tasks}
+		finally:
+			if os.path.exists(temp_json_path):
+				os.remove(temp_json_path)		
 
 
-# TODO: Adopt new batch_config format, support extracting multiple results from a single script.
-# base_job_template = {
-# 	'workflow': 'modular',
-# 	'type': 'inp_based',
-# 	'base_inp_path': './Data/abqpy_test/planar_stress_batch/planar_stress_template.inp',
-
-# 	'pre_extraction': [
-# 		{
-# 			'script_path': './Data/abqpy_test/planar_stress_batch/get_total_mass.py',
-# 			'tasks': [
-# 				{'result_name': 'total_mass', },
-# 			]
-# 		},
-
-# 	],
-# 	'post_extraction': [
-# 		{
-# 			'script_path': './Data/abqpy_test/planar_stress_batch/get_max_stress_mises.py', 
-# 			'tasks': [
-# 				{'result_name': 'max_stress_mises', },
-# 			]
-# 		}
-# 	]
-# }
 
 class BatchAbaqusProcessor:
 	"""
@@ -163,7 +202,6 @@ class BatchAbaqusProcessor:
 		for job_config in self.batch_data:
 			workflow_type = job_config.get('workflow', 'modular')
 
-			# Workflow strategies
 			workflow_strategy: JobWorkflowStrategy
 			if workflow_type == 'modular':
 				prep_type = job_config.get('type', 'inp_based')
@@ -171,19 +209,19 @@ class BatchAbaqusProcessor:
 				# Preparation strategies
 				if prep_type == 'inp_based':
 					prep_strategy = InpModifyStrategy(job_config['base_inp_path'], job_config['params'])
-				else:
+				elif prep_type == 'model_generation':
 					prep_strategy = ModelGenerationStrategy(job_config['model_script_path'], job_config['params'])
+				else:
+					raise ValueError(f"Unsupported preparation type: {prep_type}")
+				
+				# Pre & Post extraction strategies
+				pre_extraction_hooks = job_config.get('pre_extraction', [])
+				post_extraction_hooks = job_config.get('post_extraction', [])
 
-				# Pre extraction strategies
-				pre_ext_strategies = []
-				if 'pre_extraction' in job_config:
-					for ext_conf in job_config['pre_extraction']:
-						if ext_conf['type'] == 'model_properties':
-							pre_ext_strategies.append(ModelPropertiesExtractionStrategy(ext_conf['hooks']))
+				pre_ext_strategies = [ModelPropertiesExtractionStrategy(pre_extraction_hooks)] if pre_extraction_hooks else []
+				post_ext_strategies = [OdbExtractionStrategy(post_extraction_hooks)] if post_extraction_hooks else []
 				
-				# Post extraction strategies
-				post_ext_strategies = [OdbExtractionStrategy(c['hooks']) for c in job_config.get('post_extraction', []) if c['type'] == 'odb']
-				
+				# Workflow strategies
 				workflow_strategy = ModularWorkflowStrategy(prep_strategy, pre_ext_strategies, post_ext_strategies)
 
 			elif workflow_type == 'monolithic':

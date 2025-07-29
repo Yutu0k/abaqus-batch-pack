@@ -103,6 +103,7 @@ class ExtractionStrategy(ABC):
 		pass
 
 class OdbExtractionStrategy(ExtractionStrategy):
+	# TODO: Docstring
 	"""
 	Extract results from ODB files using user-defined scripts.
 	
@@ -146,20 +147,48 @@ class OdbExtractionStrategy(ExtractionStrategy):
 	
 	"""
 	def __init__(self, hooks):
-		# Hooks:
-		# [{
-		# 	'result_name': 'max_stress_mises', 
-		# 	'script_path': './Data/abqpy_test/planar_stress_batch/get_max_stress_mises.py', 
-		# },
-		# ...
-		# ]
+		# hooks:
+		# [
+		# 	{
+		# 		'script_path': './test/test_file/get_total_mass.py',
+		# 		'tasks': [
+		# 			{'result_name': 'total_mass'},
+		# 		]
+		# 	},
+		# ],
 		self.hooks = hooks
 
 	def extract(self, context: AbaqusCalculation) -> dict:
 		context.logger.info("Sub strategy [OdbExtract]: Start extracting from ODB...")
-		return context._run_extraction_hook_engine(self.hooks, {'--odb_path': context.odb_path})
+
+		if not os.path.exists(context.odb_path):
+			context.logger.error(f"ODB file does not exist : {context.odb_path}, unable to extract from ODB.")
+			all_results = {}
+			for hook in self.hooks:
+				for task in hook['tasks']:
+					all_results[task['result_name']] = None
+			return all_results
+		
+		all_results = {}
+		for hook in self.hooks:
+			# hook:
+			# {
+			# 	'result_name': 'max_stress_mises', 
+			# 	'script_path': './get_max_stress_mises.py', 
+			# }
+			script_path = hook['script_path']
+			tasks = hook['tasks']
+			context.logger.info(f"  -> Run ODB hook script: {script_path} ({len(tasks)} tasks in total)")
+			results_from_script = context._run_single_hook(
+				script_path=script_path,
+				tasks=tasks,
+				common_args={'--odb_path': context.odb_path}
+			)
+			all_results.update(results_from_script)
+		return all_results
 
 class ModelPropertiesExtractionStrategy(ExtractionStrategy):
+	# TODO: Docstring
 	"""
 	通过ASI从MDB获取模型属性的策略 (仿真前)。
 
@@ -205,16 +234,41 @@ class ModelPropertiesExtractionStrategy(ExtractionStrategy):
 				sys.exit(1)
 	
 	"""
-	def __init__(self, tasks):
-		# tasks 的格式: [{'result_name': 'total_mass', 'script_path': 'get_model_properties.py', 'property': 'mass'}, ...]
-		self.tasks = tasks
+	def __init__(self, hooks):
+		# hooks:
+		# [
+		# 	{
+		# 		'script_path': './test/test_file/get_total_mass.py',
+		# 		'tasks': [
+		# 			{'result_name': 'total_mass'},
+		# 		]
+		# 	},
+		# ]
+		self.hooks = hooks
 
 	def extract(self, context: AbaqusCalculation) -> dict:
 		context.logger.info("Sub strategy [ModelPropsExtract]: Start extracting from INP...")
 		if not os.path.exists(context.inp_path):
 			context.logger.error(f"INP file does not exist: {context.inp_path}, unable to extract model properties.")
-			return {task['result_name']: None for task in self.tasks}
-		return context._run_extraction_hook_engine(self.tasks, {'--inp_path': context.inp_path})
+			all_results = {}
+			for hook in self.hooks:
+				for task in hook['tasks']: 
+					all_results[task['result_name']] = None
+			return all_results
+		
+		all_results = {}
+		for hook in self.hooks:
+			# {
+			# 	'script_path': './test/test_file/get_total_mass.py',
+			# 	'tasks': [
+			# 		{'result_name': 'total_mass'},
+			# 	]
+			# }
+			script_path, tasks = hook['script_path'], hook['tasks']
+			context.logger.info(f"  -> Run model property hook script: {script_path} ({len(tasks)} jobs in total)")
+			results_from_script = context._run_single_hook(script_path, tasks, {'--inp_path': context.inp_path})
+			all_results.update(results_from_script)
+		return all_results
 	
 
 # ==================================
@@ -310,7 +364,7 @@ class MonolithicWorkflowStrategy(JobWorkflowStrategy):
 		try:
 			process = subprocess.run(command, check=True, capture_output=True, text=True, cwd=context.output_dir)
 			results = json.loads(process.stdout)
-			context.logger.info("一体化脚本成功执行并返回结果。")
+			context.logger.info("Monolithic script run successfully.")
 			return results
 		except subprocess.CalledProcessError as e:
 			context.logger.error(f"Monolithic script run failed[Caused by `multiprocessing`]. STDERR:\n{e.stderr}")

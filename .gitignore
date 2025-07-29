@@ -9,3 +9,16 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+
+# Abaqus files
+*.com
+*.dat
+*.ipm
+*.msg
+*.prt
+*.sta
+*.rec
+*.jnl
+*.deps
+abaqus.rpy.[0-9]*
+abaqus.rpy
