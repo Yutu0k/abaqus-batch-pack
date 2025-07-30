@@ -2,6 +2,7 @@ import os
 import logging
 import json
 import uuid
+import functools
 
 import subprocess
 from multiprocessing import Pool
@@ -171,7 +172,6 @@ class AbaqusCalculation:
 			
 			out = self._robust_json_extractor(process.stdout)
 
-			pp.pprint(out)
 			return out
 
 		except Exception as e:
@@ -241,7 +241,7 @@ class BatchAbaqusProcessor:
 			calcs.append(calc)
 		return calcs
 
-	def run_batch(self, num_parallel_jobs: int, output_type: str = 'list'):
+	def run_batch_blocking(self, num_parallel_jobs: int, output_type: str = 'list'):
 		"""
 		Run all calculations in parallel using multiprocessing.
 		Args:
@@ -289,8 +289,101 @@ class BatchAbaqusProcessor:
 		else:
 			raise ValueError(f"Unsupported output type: {output_type}. Use 'list' or 'dict'.")
 
-def _run_workflow_worker(calc_instance):
+	def run_batch_async(self, num_parallel_jobs: int, output_type: str = 'list'):
+		"""
+		Run all calculations in parallel using multiprocessing.
+		Args:
+			num_parallel_jobs (`int`): Number of parallel jobs to run.
+			output_type (`str`): Type of output, either 'list' or 'dict'.
+				- 'list': Returns a list of results for each calculation.
+					
+					Example:
+					[
+						{
+							'total_mass': 0.000320662622552476,
+							'max_stress_mises': 4525.26025390625,
+							'max_displacement': 4.189039707183838,
+							'status': 'COMPLETED',
+							'job_name': 'test_inp_based_job'
+						},
+						...
+					]
+
+				- 'dict': Returns a dictionary mapping job names to their results.
+
+					Example:
+					{
+						'test_inp_based_job': {
+							'total_mass': 0.000320662622552476,
+							'max_stress_mises': 4525.26025390625,
+							'max_displacement': 4.189039707183838,
+							'status': 'COMPLETED'}
+						...
+					}
+		Returns:
+			list[`dict`] or dict[`str`, `dict`]: results of all calculations.
+		"""
+		total_tasks = len(self.calculations)
+		
+		with tqdm(total=total_tasks, desc="异步任务进度", unit="job") as pbar:
+			success_callback = functools.partial(_log_success_callback, pbar)
+			error_callback = functools.partial(_log_error_callback, pbar)
+
+			pool = Pool(processes=num_parallel_jobs)
+			async_results = []
+			
+			for calc in self.calculations:
+				res = pool.apply_async(
+					_run_workflow_worker_async, 
+					args=(calc,), 
+					callback=success_callback, 
+					error_callback=error_callback
+				)
+				async_results.append(res)
+				
+			pool.close()
+			pool.join()
+		
+		if output_type == 'dict':
+			final_results_dict = {}
+			for res in async_results:
+				job_name, job_result = res.get()
+				if job_result and isinstance(job_result, dict):
+					final_results_dict[job_name] = job_result
+			return final_results_dict
+		elif output_type == 'list':
+			final_results_list = []
+			for res in async_results:	# res: `multiprocessing.pool.AsyncResult`, use .get() to retrieve the result	
+				job_name, job_result = res.get()
+				if job_result and isinstance(job_result, dict):
+					job_result['job_name'] = job_name
+					final_results_list.append(job_result)
+			return final_results_list
+		else:
+			raise ValueError(f"Unsupported output type: {output_type}. Use 'list' or 'dict'.")
+
+# -------------------------------------------------------------
+# Helper functions for multiprocessing
+def _run_workflow_worker(calc_instance: AbaqusCalculation):
 	return calc_instance.execute()
+
+def _run_workflow_worker_async(calc_instance: AbaqusCalculation):
+	results = calc_instance.execute()
+	return (calc_instance.job_name, results)
+
+# Async callbacks
+def _log_success_callback(pbar, result_tuple):
+	job_name, results = result_tuple
+	status = results.get('status', 'N/A')
+	pbar.set_description(f"{job_name} Finished (Status: {status})")
+	pbar.update(1)
+
+def _log_error_callback(pbar, exception):
+	# TODO: 不知道什么情况会error
+	pbar.set_description(f"❌ 失败: 一个任务遇到错误 ({type(exception).__name__})")
+	pbar.update(1)
+
+# -------------------------------------------------------------
 
 def generate_from_array(samples_array, param_names, base_config) -> list[dict]:
 	"""
