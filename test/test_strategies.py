@@ -63,6 +63,6 @@ processor = BatchAbaqusProcessor(
 # @pytest.mark.skip
 def test_total():
 	results = processor.run_batch(num_parallel_jobs=BATCH_SIZE)
-
+	results1 = processor.run_batch(num_parallel_jobs=BATCH_SIZE, output_type='dict')
 	print(results)
-
+	print(results1)

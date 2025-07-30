@@ -6,7 +6,9 @@ import uuid
 import subprocess
 from multiprocessing import Pool
 
+import pprint as pp
 import numpy as np
+from tqdm.rich import tqdm
 
 from .strategies import JobWorkflowStrategy
 from .strategies import (ModularWorkflowStrategy, MonolithicWorkflowStrategy, 
@@ -168,8 +170,8 @@ class AbaqusCalculation:
 			process = subprocess.run(command, check=True, capture_output=True, text=True)
 			
 			out = self._robust_json_extractor(process.stdout)
-			print(process.stdout)
-			print(out)
+
+			pp.pprint(out)
 			return out
 
 		except Exception as e:
@@ -239,36 +241,56 @@ class BatchAbaqusProcessor:
 			calcs.append(calc)
 		return calcs
 
-	def run_batch(self, num_parallel_jobs):
+	def run_batch(self, num_parallel_jobs: int, output_type: str = 'list'):
 		"""
 		Run all calculations in parallel using multiprocessing.
+		Args:
+			num_parallel_jobs (`int`): Number of parallel jobs to run.
+			output_type (`str`): Type of output, either 'list' or 'dict'.
+				- 'list': Returns a list of results for each calculation.
+					
+					Example:
+					[
+						{
+							'total_mass': 0.000320662622552476,
+							'max_stress_mises': 4525.26025390625,
+							'max_displacement': 4.189039707183838,
+							'status': 'COMPLETED',
+							'job_name': 'test_inp_based_job'
+						},
+						...
+					]
+
+				- 'dict': Returns a dictionary mapping job names to their results.
+
+					Example:
+					{
+						'test_inp_based_job': {
+							'total_mass': 0.000320662622552476,
+							'max_stress_mises': 4525.26025390625,
+							'max_displacement': 4.189039707183838,
+							'status': 'COMPLETED'}
+						...
+					}
 		Returns:
-			list[`dict`]: A list of results for each calculation.
+			list[`dict`] or dict[`str`, `dict`]: results of all calculations.
 		"""
 		with Pool(processes=num_parallel_jobs) as pool:
-			results_from_workers = pool.map(_run_workflow_worker, self.calculations)
-	
-		result_list = []
-		for calc, result in zip(self.calculations, results_from_workers):
-			result['job_name'] = calc.job_name
-			result_list.append(result)
-		return result_list
-	
-	def run_batch_as_dict(self, num_parallel_jobs):
-		"""
-		**Obselete method, kept for backward compatibility.**
-		
-		Run all calculations in parallel using multiprocessing.
-		Returns:
-			`dict`: A dictionary of results for each calculation, keyed by job name.
-		"""
-		with Pool(processes=num_parallel_jobs) as pool:
-			results_from_workers = pool.map(_run_workflow_worker, self.calculations)
-		return {calc.job_name: result for calc, result in zip(self.calculations, results_from_workers)}
+			results_from_workers = pool.map(_run_workflow_worker, tqdm(self.calculations, desc="Running calculations", unit="job"))
+
+		if output_type == 'dict':
+			return {calc.job_name: result for calc, result in zip(self.calculations, results_from_workers)}
+		elif output_type == 'list':
+			result_list = []
+			for calc, result in zip(self.calculations, results_from_workers):
+				result['job_name'] = calc.job_name
+				result_list.append(result)
+			return result_list
+		else:
+			raise ValueError(f"Unsupported output type: {output_type}. Use 'list' or 'dict'.")
 
 def _run_workflow_worker(calc_instance):
 	return calc_instance.execute()
-
 
 def generate_from_array(samples_array, param_names, base_config) -> list[dict]:
 	"""

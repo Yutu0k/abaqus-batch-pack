@@ -2,7 +2,9 @@
 authors = [{name = "yutu0k", email = "yutu0k@sjtu.edu.cn"}]
 dependencies = [
 	"numpy",
-	"abqpy"
+	"abqpy",
+	"tqdm",
+	"rich"
 ]
 name = "abaqus_batch_pack"
 requires-python = "== 3.10.*"
@@ -31,3 +33,5 @@ abqpy = "*"
 pytest = ">=8.4.1,<9"
 sphinx = ">=8.1.3,<9"
 furo = ">=2024.8.6,<2025"
+tqdm = ">=4.67.1,<5"
+rich = ">=14.1.0,<15"
