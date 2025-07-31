@@ -31,7 +31,9 @@ class InpModifyStrategy(PreparationStrategy):
 
 	Properties in the INP file must be defined as placeholders like {{property_name}}.
 	
-	`Example INP file`:
+	Example
+	-------
+	Example INP file::
 
 		*MATERIAL, NAME=STEEL
 		*ELASTIC
@@ -105,45 +107,55 @@ class ExtractionStrategy(ABC):
 		pass
 
 class OdbExtractionStrategy(ExtractionStrategy):
-	# TODO: Docstring
 	"""
 	Extract results from ODB files using user-defined scripts.
 	
-	.. rubric:: 用户自定义“ODB提取”钩子脚本编写规范
+	.. rubric::
 
-	1.  **执行环境**: 必须能由 `abaqus python` 执行并可以 `import odbAccess`。
-	2.  **命令行接口**:
-			- 必须使用 `argparse` 解析参数。
-			- 必须接收由框架传入的 `--odb_path` 参数。
-			- 可以定义任何自定义参数来定位数据（如 `--step`, `--node_label` 等）可以在post_extraction.hooks字段中配置使用。
-	3.  **核心任务**:
-			- 打开 `odb_path` 指定的ODB文件，并提取所需数据。
-	4.  **标准输出 (stdout)**:
-			- **必须**向标准输出打印一个**单一的、可以被Python的`float()`函数转换的数值**。不要打印任何其他信息。
-	5.  **错误处理**:
-			- 必须遵循通用规范中的错误处理流程。
+		1.  **执行环境**: `abaqus python` / `python` (if `abaqpy` is installed)
+		2.  **命令行接口**:
+			- 必须使用 `argparse` 解析参数
+			- 必须接收由框架传入的 `--odb_path` 和 `--tasks_json`
+			- 可以定义任何自定义参数来定位数据(如 `--step`, `--node_label` 等)
+		3.  **标准输出 (stdout)**:
+			- 使用`sys.__stdout__.write(json.dumps(result))` 重定向输出
 
-	**Example Script**:
-	.. code-block:: python
 
-		import argparse, sys, odbAccess
+	.. Example::
+
+		import argparse, sys, json
+		import odbAccess
 
 		if __name__ == "__main__":
 			parser = argparse.ArgumentParser()
-			parser.add_argument('--odb_path', required=True)
-			# ... add your custom args like --node_label ...
-			args = parser.parse_args()
-			extract_with_your_script(args)
+			parser.add_argument('--odb_path', type=str, required=True)
+			parser.add_argument('--tasks_json', type=str, required=True)
 
-		def extract_with_your_script(args):
+			# ... add your custom args like --node_label ...
+			args, unknown = parser.parse_known_args()
+			extract_with_your_script(args.odb_path, args.tasks_json, **kwargs)
+
+		def extract_with_your_script(odb_path, tasks_json, **kwargs):
 			try:
+				# Retrieve tasks
+				with open(tasks_json_path, 'r', encoding='utf-8') as f: 
+					task_list = json.load(f)
+
 				odb = odbAccess.openOdb(args.odb_path)
-				# ... odb access and data extraction logic ...
-				result = 123.45
-				print(result)
+
+				for task in task_list:
+					result_name = task['result_name']
+					try:
+						results[result_name] = 123.45
+					except Exception as e:
+						results[result_name] = None
+						sys.__stderr__.write(f"  - Sub-task '{result_name}' failed: {e}\n")
+				
+				odb.close()
+				sys.__stdout__.write(json.dumps(results, indent=4) + "\n")
 
 			except Exception as e:
-				print(e, file=sys.stderr)
+				sys.__stderr__.write(f"Fatal error in xxxx.py: {e}\n")
 				sys.exit(1)
 	
 	
@@ -190,49 +202,54 @@ class OdbExtractionStrategy(ExtractionStrategy):
 		return all_results
 
 class ModelPropertiesExtractionStrategy(ExtractionStrategy):
-	# TODO: Docstring
 	"""
-	通过ASI从MDB获取模型属性的策略 (仿真前)。
+	Extract results from INP files using user-defined scripts.
 
-	.. rubric:: 用户自定义“模型属性提取”钩子脚本编写规范
+	.. rubric::
 
-	1.  **执行环境**: 必须能由 `python` 执行并可以 `from abaqus import mdb`。
-	2.  **命令行接口**:
-		- 必须使用 `argparse` 解析参数。
-		- 必须接收由框架传入的 `--inp_path` 参数。
-		- 可以定义 `--property` 等自定义参数来指定要提取的属性。
-	3.  **核心任务**:
-		- 使用 `mdb.ModelFromInputFile()` 将INP文件加载到内存中。
-		- 通过ASI查询模型属性，如 `assembly.getMassProperties()`。
-	4.  **标准输出 (stdout)**:
-		- **必须**向标准输出打印一个**单一的、可以被Python的`float()`函数转换的数值**。
-	5.  **错误处理**:
-		- 必须遵循通用规范。
+		1.  **执行环境**: `abaqus cae noGui=` / `python` (if `abaqpy` is installed)
+		2.  **命令行接口**:
+			- 必须使用 `argparse` 解析参数
+			- 必须接收由框架传入的 `--inp_path` 和 `--tasks_json` 参数
+			- 可以定义 `--property` 等自定义参数来指定要提取的属性。
+		3.  **标准输出 (stdout)**:
+			- 使用`sys.__stdout__.write(json.dumps(result))` 重定向输出
 
-	**Example Script**:
-	.. code-block:: python
+	.. Example::
 
 		import argparse, sys
 		from abaqus import mdb
 
 		if __name__ == "__main__":
 			parser = argparse.ArgumentParser()
-			parser.add_argument('--odb_path', required=True)
+			parser.add_argument('--inp_path', type=str, required=True)
+			parser.add_argument('--tasks_json', type=str, required=True)
+
 			# ... add your custom args like --node_label ...
-			args = parser.parse_args()
-			extract_with_your_script(args)
+			args, unknown = parser.parse_known_args()
+			extract_with_your_script(args.inp_path, args.tasks_json, **kwargs)
 
-		def extract_with_your_script(args):
+		def extract_with_your_script(inp_path, tasks_json, **kwargs):
 			try:
-				mdb.ModelFromInputFile(name='test', inputFileName=args.inp_path)
-				# ... mdb access and data extraction logic ...
-				result = 123.45
+				# Retrieve tasks
+				with open(tasks_json_path, 'r', encoding='utf-8') as f: 
+					task_list = json.load(f)
 
-				# Bypass the default stdout to avoid Abaqus' print redirection
-				sys.__stdout__.write(f"{result}\n")
+				mdb.ModelFromInputFile()
+
+				for task in task_list:
+					result_name = task['result_name']
+					try:
+						results[result_name] = 123.45
+					except Exception as e:
+						results[result_name] = None
+						sys.__stderr__.write(f"  - Sub-task '{result_name}' failed: {e}\n")
+				
+				mdb.close()
+				sys.__stdout__.write(json.dumps(results, indent=4) + "\n")
 
 			except Exception as e:
-				print(e, file=sys.stderr)
+				sys.__stderr__.write(f"Fatal error in xxxx.py: {e}\n")
 				sys.exit(1)
 	
 	"""
@@ -277,10 +294,15 @@ class ModelPropertiesExtractionStrategy(ExtractionStrategy):
 # 工作流策略 (Workflow Strategies)
 # ==================================
 class JobWorkflowStrategy(ABC):
-	"""最高层级的策略接口，定义了如何执行一个完整的作业。"""
+	"""
+	Defines the interface for job workflow strategies.
+
+	Methods Subclass should implement:
+	- execute(context: `AbaqusCalculation`): execute the complete workflow and return a dictionary of results.
+
+	"""
 	@abstractmethod
 	def execute(self, context: AbaqusCalculation) -> dict:
-		"""执行完整工作流并返回结果字典。"""
 		pass
 
 class MonolithicWorkflowStrategy(JobWorkflowStrategy):
@@ -301,9 +323,9 @@ class MonolithicWorkflowStrategy(JobWorkflowStrategy):
 	Refer to [Cantilever Example](https://hailin.wang/abqpy/zh_CN/2025/examples/Abaqus/cantilever.html#sphx-glr-examples-abaqus-cantilever-py) for more details.
 
 	
-	.. rubric:: 用户自定义“一体化”脚本编写规范
+	.. rubric:: 
 
-	1.  **执行环境**: 必须能由 `abaqus python` 执行。
+	1.  **执行环境**: `abaqus python` / `python` (if `abaqpy` is installed)
 	2.  **命令行接口**:
 		- 必须使用 `argparse` 解析参数。
 		- 必须接收由框架传入的 `--job_name` 参数，并用它来命名Abaqus Job (`mdb.Job(name=...)`)，以确保输出文件（如.odb）命名一致。
@@ -312,13 +334,8 @@ class MonolithicWorkflowStrategy(JobWorkflowStrategy):
 		- 必须是脚本向框架返回数据的**唯一**通道。
 		- **必须**在成功执行后，打印一个**合法的、单一的JSON字符串**。此JSON应包含所有结果。
 		- 推荐JSON中包含一个 'status': 'COMPLETED' 键值对。
-	4.  **错误处理**:
-		- 整个主逻辑必须被包裹在 `try...except` 块中。
-		- 发生错误时，必须将错误信息打印到标准错误流 `sys.stderr`。
-		- 发生错误时，必须以非零状态码退出 `sys.exit(1)`。
 
-	**脚本骨架示例**:
-	.. code-block:: python
+	.. Example::
 
 		import argparse, json, sys, abaqus
 		

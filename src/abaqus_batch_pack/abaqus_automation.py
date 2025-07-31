@@ -41,7 +41,6 @@ class AbaqusCalculation:
 		self.logger = None  # 延迟初始化日志记录器
 
 	def execute(self):
-		"""执行由其工作流策略定义的完整任务。"""
 		if self.logger is None:
 			self.logger = self._setup_logging()
 		
@@ -63,7 +62,7 @@ class AbaqusCalculation:
 
 	def run_simulation(self, cpus: int) -> bool:
 		"""
-		所有模块化工作流统一使用的运行器：'abaqus job=...' 命令。
+		Use 'abaqus job=..., input=inp_file, cpus=num_cpu' to run simulation.
 		"""
 		self.logger.info(f"Executor [CLI]: run 'abaqus job={self.job_name}'")
 		command = [self.abaqus_exe, 'job=' + self.job_name, 'input=' + self.inp_path, 'cpus=' + str(cpus), 'interactive']
@@ -193,7 +192,7 @@ class AbaqusCalculation:
 			return out
 
 		except Exception as e:
-			self.logger.error(f"执行钩子脚本 '{script_path}' 失败: {e}")
+			self.logger.error(f"Run extraction '{script_path}' failed: {e}")
 			stderr_output = getattr(e, 'stderr', 'N/A')
 			stdout_output = getattr(e, 'stdout', 'N/A')
 			self.logger.error(f"Captured stderr:\n{stderr_output}")
@@ -439,6 +438,7 @@ class BatchAbaqusProcessor:
 	def run_batch(self, num_parallel_jobs: int, output_type: str = 'list'):
 		"""
 		Run all calculations in parallel using multiprocessing.
+		
 		Args:
 			num_parallel_jobs (`int`): Number of parallel jobs to run.
 			output_type (`str`): Type of output, either 'list' or 'dict'.
