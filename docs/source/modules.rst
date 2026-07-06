@@ -1,7 +1,7 @@
-abq_flow
-========
+ABQflow
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   abq_flow
+   ABQflow

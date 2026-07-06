@@ -1,4 +1,4 @@
-abq-flow
+ABQflow
 ========
 
 **Modular batch-processing framework for Abaqus FEA** -- typed job specs,
@@ -15,7 +15,7 @@ strategy-pattern workflows, fault-tolerant parallel execution, resource-aware sc
 
 ----
 
-abq-flow turns repetitive Abaqus FEA workflows into readable, batch-oriented Python
+ABQflow turns repetitive Abaqus FEA workflows into readable, batch-oriented Python
 code. Define parameter sweeps, multi-step extraction pipelines, and monolithic scripts
 as typed :class:`~abaqus_batch_pack.JobSpec` objects; the framework handles resource
 planning, parallel execution, and fault tolerance.

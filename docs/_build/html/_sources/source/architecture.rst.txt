@@ -1,7 +1,7 @@
 Architecture
 ============
 
-This page describes the design rationale and internals of abq-flow (v0.3.0).
+This page describes the design rationale and internals of ABQflow (v0.3.0).
 
 Design Principles
 -----------------
@@ -175,7 +175,7 @@ Migration from v0.2
 --------------------
 
 v0.3 introduced breaking changes to fix structural defects (see the
-`design document <https://github.com/Yutu0k/abq-flow>`_ for the full
+`design document <https://github.com/Yutu0k/ABQflow>`_ for the full
 analysis).
 
 **Dict config → JobSpec:**

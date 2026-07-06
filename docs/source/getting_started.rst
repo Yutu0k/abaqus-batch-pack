@@ -9,7 +9,7 @@ Installation
 
 .. code-block:: bash
 
-   pixi add --pypi "abq_flow @ git+https://github.com/Yutu0k/abaqus-batch-pack.git"
+   pixi add --pypi "ABQflow @ git+https://github.com/Yutu0k/ABQflow.git"
 
 Prerequisites
 -------------

@@ -50,7 +50,7 @@ English | [简体中文](doc/README.zh-CN.md)
 ## Installation
 
 ```bash
-pixi add --pypi "abq_flow @ git+https://github.com/Yutu0k/abaqus-batch-pack.git"
+pixi add --pypi "ABQflow @ git+https://github.com/Yutu0k/ABQflow.git"
 ```
 
 **Prerequisites:** Abaqus (with `abaqus` on PATH), Python ≥ 3.9. Optional: [`abqpy`](https://github.com/haiiliin/abqpy) for running scripts directly with `python` instead of the Abaqus kernel.
