@@ -290,6 +290,8 @@
 	<span class="n">PREPARATION_FAILED</span> <span class="o">=</span> <span class="s2">&quot;PREPARATION_FAILED&quot;</span>
 	<span class="n">PREPARATION_SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;PREPARATION_SUCCESS&quot;</span>
 
+	<span class="n">PREFLIGHT_FAILED</span> <span class="o">=</span> <span class="s2">&quot;PREFLIGHT_FAILED&quot;</span>
+
 	<span class="n">SIMULATING</span> <span class="o">=</span> <span class="s2">&quot;SIMULATING&quot;</span>
 	<span class="n">SIMULATION_FAILED</span> <span class="o">=</span> <span class="s2">&quot;SIMULATION_FAILED&quot;</span>
 	<span class="n">SIMULATION_SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;SIMULATION_SUCCESS&quot;</span>
@@ -310,6 +312,7 @@
 <span class="c1"># Terminal failure states — once reached, no further state changes allowed (B4)</span>
 <span class="n">_TERMINAL_FAILURES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
 	<span class="n">JobStatus</span><span class="o">.</span><span class="n">PREPARATION_FAILED</span><span class="p">,</span>
+	<span class="n">JobStatus</span><span class="o">.</span><span class="n">PREFLIGHT_FAILED</span><span class="p">,</span>
 	<span class="n">JobStatus</span><span class="o">.</span><span class="n">SIMULATION_FAILED</span><span class="p">,</span>
 	<span class="n">JobStatus</span><span class="o">.</span><span class="n">EXTRACTION_FAILED</span><span class="p">,</span>
 	<span class="n">JobStatus</span><span class="o">.</span><span class="n">MONOLITHIC_SCRIPT_FAILED</span><span class="p">,</span>
@@ -383,6 +386,24 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">_current_status</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">PREPARATION_SUCCESS</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_fail</span><span class="p">(</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">PREPARATION_FAILED</span><span class="p">,</span> <span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;Preparation step failed.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="JobStatusManager.record_preflight">
+<a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.JobStatusManager.record_preflight">[docs]</a>
+	<span class="k">def</span><span class="w"> </span><span class="nf">record_preflight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Record the outcome of the preflight phase (IMP-04).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		success : bool</span>
+<span class="sd">			``True`` if syntax/datacheck passed.</span>
+<span class="sd">		error : str or None</span>
+<span class="sd">			Error message on failure; a default is used if omitted.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_status</span> <span class="ow">in</span> <span class="n">_TERMINAL_FAILURES</span><span class="p">:</span>
+			<span class="k">return</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_fail</span><span class="p">(</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">PREFLIGHT_FAILED</span><span class="p">,</span> <span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;Preflight check failed.&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="JobStatusManager.record_simulation">

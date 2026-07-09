@@ -252,6 +252,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 
 <div class="viewcode-block" id="HookSpec">
@@ -290,10 +291,15 @@
 <span class="sd">	params : dict</span>
 <span class="sd">		Key-value parameters forwarded to the preparation strategy (e.g.</span>
 <span class="sd">		placeholder replacements for ``inp_based``).</span>
+<span class="sd">	options : dict</span>
+<span class="sd">		Additional options for the preparation strategy (Currently only used by ``existing_inp``):</span>
+<span class="sd">		- &#39;staging_mode&#39; (str): ``&#39;copy&#39;`` (default) </span>
+<span class="sd">		- &#39;resolve_includes&#39; (bool): Whether to resolve ``*INCLUDE`` directives in the INP file (default: True).</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
 	<span class="n">source_path</span><span class="p">:</span> <span class="nb">str</span>
-	<span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+	<span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+	<span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
 
 
 
@@ -316,6 +322,11 @@
 <span class="sd">	preparation : PreparationSpec or None</span>
 <span class="sd">		Preparation spec; required when ``workflow=&#39;modular&#39;``, ignored for</span>
 <span class="sd">		monolithic.</span>
+<span class="sd">	preflight : str, default=None</span>
+<span class="sd">		Preflight mode for modular workflows. </span>
+<span class="sd">		- None: No preflight checks (default)</span>
+<span class="sd">		- &#39;syntaxcheck&#39;: Run abaqus syntax check</span>
+<span class="sd">		- &#39;datacheck&#39;: Run abaqus datacheck</span>
 <span class="sd">	monolithic_script : str or None</span>
 <span class="sd">		Path to the monolithic script; required when</span>
 <span class="sd">		``workflow=&#39;monolithic&#39;``.</span>
@@ -325,15 +336,19 @@
 <span class="sd">		Hooks run *before* the solver (e.g. model property extraction).</span>
 <span class="sd">	post_extraction : list[HookSpec]</span>
 <span class="sd">		Hooks run *after* the solver (e.g. ODB result extraction).</span>
+<span class="sd">	meta : dict</span>
+<span class="sd">		Arbitrary user metadata</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span>
 	<span class="n">workflow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;modular&#39;</span>
 	<span class="n">preparation</span><span class="p">:</span> <span class="n">PreparationSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="n">preflight</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># IMP-04: None | &#39;syntaxcheck&#39; | &#39;datacheck&#39;</span>
 	<span class="n">monolithic_script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 	<span class="n">monolithic_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 	<span class="n">pre_extraction</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">HookSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 	<span class="n">post_extraction</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">HookSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+	<span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
 	<span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Validate the spec after field assignment.</span>
@@ -355,6 +370,18 @@
 			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">] modular workflow requires &#39;preparation&#39;&quot;</span><span class="p">)</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">==</span> <span class="s1">&#39;monolithic&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">monolithic_script</span><span class="p">:</span>
 			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">] monolithic workflow requires &#39;monolithic_script&#39;&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preflight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">preflight</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;syntaxcheck&#39;</span><span class="p">,</span> <span class="s1">&#39;datacheck&#39;</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+				<span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">] preflight must be &#39;syntaxcheck&#39;, &#39;datacheck&#39;, or None; &quot;</span>
+				<span class="sa">f</span><span class="s2">&quot;got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">preflight</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+			<span class="p">)</span>
+		<span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preparation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+				<span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;existing_inp&#39;</span>
+				<span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">preparation</span><span class="o">.</span><span class="n">params</span><span class="p">):</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+				<span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">] kind=&#39;existing_inp&#39; does not use params — &quot;</span>
+				<span class="sa">f</span><span class="s2">&quot;params will be ignored. If you need template substitution, use kind=&#39;inp_based&#39;.&quot;</span>
+			<span class="p">)</span>
 
 <div class="viewcode-block" id="JobSpec.from_dict">
 <a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.JobSpec.from_dict">[docs]</a>
