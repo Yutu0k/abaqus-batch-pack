@@ -16,6 +16,7 @@ from typing import List
 
 from .context import JobContext
 from .runner import AbaqusRunner, extract_json
+from .diagnostics import SolverResult
 from .status import JobStatus, JobStatusManager
 
 # Regex for {{placeholder}} in INP files (B8)
@@ -448,7 +449,7 @@ class MonolithicWorkflowStrategy(JobWorkflowStrategy):
 
 
 class ModularWorkflowStrategy(JobWorkflowStrategy):
-	"""4-phase pipeline: preparation, pre-extraction, simulation, post-extraction.
+	"""5-phase pipeline: preparation, [preflight], pre-extraction, simulation, post-extraction.
 
 	Uses a :class:`JobStatusManager` internally to track the job through
 	each phase.  If any phase fails the pipeline stops and returns the
@@ -458,6 +459,8 @@ class ModularWorkflowStrategy(JobWorkflowStrategy):
 	----------
 	preparation_strategy : PreparationStrategy
 		Strategy that produces the INP file.
+	preflight_mode : str or None
+		``'syntaxcheck'``, ``'datacheck'``, or ``None`` (IMP-04).
 	pre_extraction_strategies : list[ExtractionStrategy]
 		Strategies run before the solver (e.g. property extraction from INP).
 	post_extraction_strategies : list[ExtractionStrategy]
@@ -469,14 +472,18 @@ class ModularWorkflowStrategy(JobWorkflowStrategy):
 		preparation_strategy: PreparationStrategy,
 		pre_extraction_strategies: List[ExtractionStrategy],
 		post_extraction_strategies: List[ExtractionStrategy],
+		preflight_mode: str | None = None,
+		preflight_only: bool = False,
 	):
 		self.preparation_strategy = preparation_strategy
+		self.preflight_mode = preflight_mode
 		self.pre_extraction_strategies = pre_extraction_strategies
 		self.post_extraction_strategies = post_extraction_strategies
+		self.preflight_only = preflight_only
 
 	def execute(self, ctx: JobContext, runner: AbaqusRunner,
 				logger: logging.Logger) -> dict:
-		"""Run the 4-phase modular workflow.
+		"""Run the modular workflow (5 phases with optional preflight).
 
 		Returns a dict with at least a ``'status'`` key plus any results
 		from pre- and post-extraction hooks.  Failing early means later
@@ -493,21 +500,45 @@ class ModularWorkflowStrategy(JobWorkflowStrategy):
 			return all_results
 		status_manager.record_preparation(success=True)
 
-		# 2. Pre-extraction
+		# 2. Preflight (IMP-04: inserted before pre-extraction for fail-fast)
+		if self.preflight_mode:
+			logger.info(f"Preflight [{self.preflight_mode}]: checking INP...")
+			passed, pf_errors = runner.run_preflight(self.preflight_mode)
+			if not passed:
+				status_manager.record_preflight(
+					success=False,
+					error=pf_errors[0] if pf_errors else f"Preflight [{self.preflight_mode}] failed",
+				)
+				all_results['status'] = status_manager.get_final_status()
+				return all_results
+			status_manager.record_preflight(success=True)
+			logger.info(f"Preflight [{self.preflight_mode}]: passed")
+
+		# IMP-04: preflight_only mode — stop after preflight, skip solver & extraction
+		if self.preflight_only:
+			all_results['status'] = status_manager.get_final_status()
+			return all_results
+
+		# 3. Pre-extraction
 		for strategy in self.pre_extraction_strategies:
 			pre_ext_results = strategy.extract(ctx, runner, logger)
 			status_manager.record_extraction(pre_ext_results)
 			all_results.update(pre_ext_results)
 
-		# 3. Simulation
-		run_successful = runner.run_solver()
-		if not run_successful:
-			status_manager.record_simulation(success=False)
+		# 4. Simulation (IMP-02: diagnostics-backed verdict)
+		solver_result = runner.run_solver()
+		# Attach diagnostics on failure and on the rc≠0+COMPLETED edge case
+		if solver_result.diagnostics is not None:
+			if not solver_result.success or solver_result.error:
+				from dataclasses import asdict
+				all_results['diagnostics'] = asdict(solver_result.diagnostics)
+		if not solver_result.success:
+			status_manager.record_simulation(success=False, error=solver_result.error)
 			all_results['status'] = status_manager.get_final_status()
 			return all_results
 		status_manager.record_simulation(success=True)
 
-		# 4. Post-extraction
+		# 5. Post-extraction
 		for strategy in self.post_extraction_strategies:
 			post_ext_results = strategy.extract(ctx, runner, logger)
 			status_manager.record_extraction(post_ext_results)

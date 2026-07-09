@@ -46,7 +46,7 @@ def register_preparation(kind: str, factory: callable):
 	PREPARATION_REGISTRY[kind] = factory
 
 
-def build_workflow(spec: JobSpec) -> JobWorkflowStrategy:
+def build_workflow(spec: JobSpec, preflight_only: bool = False) -> JobWorkflowStrategy:
 	"""Assemble a concrete :class:`~abaqus_batch_pack.strategies.JobWorkflowStrategy` from a spec.
 
 	* Monolithic specs produce a :class:`~abaqus_batch_pack.strategies.MonolithicWorkflowStrategy`.
@@ -58,6 +58,8 @@ def build_workflow(spec: JobSpec) -> JobWorkflowStrategy:
 	----------
 	spec : JobSpec
 		Validated job configuration.
+	preflight_only : bool
+		If ``True``, the workflow stops after preflight (IMP-04).
 
 	Returns
 	-------
@@ -89,4 +91,5 @@ def build_workflow(spec: JobSpec) -> JobWorkflowStrategy:
 		[{'script_path': h.script_path, 'tasks': h.tasks} for h in spec.post_extraction]
 	)] if spec.post_extraction else []
 
-	return ModularWorkflowStrategy(prep, pre, post)
+	return ModularWorkflowStrategy(prep, pre, post, preflight_mode=spec.preflight,
+	                                preflight_only=preflight_only)

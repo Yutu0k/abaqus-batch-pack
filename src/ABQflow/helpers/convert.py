@@ -17,6 +17,65 @@ import numpy as np
 from ..core.spec import JobSpec, PreparationSpec
 
 
+# ======================== IMP-06: sidecar CSV contract ========================
+
+_SIDECAR_KEY = '__file__'
+
+
+def is_sidecar(value) -> bool:
+	"""Return ``True`` if *value* is a sidecar envelope (dict with ``__file__``).
+
+	Parameters
+	----------
+	value : any
+		Value to test.
+
+	Returns
+	-------
+	bool
+	"""
+	return isinstance(value, dict) and _SIDECAR_KEY in value
+
+
+def resolve_sidecar(value: dict, output_dir: str, load: bool = False):
+	"""Resolve a sidecar envelope to an absolute path and optional data.
+
+	Parameters
+	----------
+	value : dict
+		Sidecar envelope: ``{'__file__': path, 'format': 'csv', ...}``.
+	output_dir : str
+		Directory that ``__file__`` is relative to.
+	load : bool
+		If ``True``, load the file and return a ``numpy.ndarray``.
+		Default ``False`` (lazy — returns the absolute path).
+
+	Returns
+	-------
+	tuple[str, dict] or tuple[numpy.ndarray, dict]
+		``(absolute_path, metadata)`` when ``load=False``;
+		``(ndarray, metadata)`` when ``load=True``.
+
+	Raises
+	------
+	ValueError
+		If the envelope is missing ``__file__`` or the file doesn't exist.
+	"""
+	if not is_sidecar(value):
+		raise ValueError(f"Not a sidecar envelope (missing '{_SIDECAR_KEY}' key)")
+	rel = value[_SIDECAR_KEY]
+	abspath = os.path.normpath(os.path.join(output_dir, rel))
+	if not os.path.isfile(abspath):
+		raise ValueError(f"Sidecar file not found: {abspath}")
+	if load:
+		# ponytail: np.loadtxt covers CSV; add np.load for .npy when needed
+		data = np.loadtxt(abspath, delimiter=',', skiprows=1)
+		meta = {k: v for k, v in value.items() if k != _SIDECAR_KEY}
+		return (data, meta)
+	meta = {k: v for k, v in value.items() if k != _SIDECAR_KEY}
+	return (abspath, meta)
+
+
 # ======================== Job name sanitisation ========================
 
 # Abaqus job name rules: max 80 chars, start with letter, [A-Za-z0-9_-] only.
@@ -236,7 +295,18 @@ def degenerate_from_array(outcomes: list, output_names: list[str],
 		if require_completed and oc.status != "COMPLETED":
 			bad.append(oc.job_name)
 		r = oc.results or {}
-		rows.append([r.get(n, default_value) for n in output_names])
+		row = []
+		for n in output_names:
+			v = r.get(n, default_value)
+			if is_sidecar(v):
+				raise ValueError(
+					f"Sidecar envelope found for '{n}' in job '{oc.job_name}'. "
+					f"Sidecar data (large-field results) cannot be packed into a "
+					f"matrix. Use resolve_sidecar() to load explicitly, or remove "
+					f"'{n}' from output_names."
+				)
+			row.append(v)
+		rows.append(row)
 
 	if bad:
 		warnings.warn(f"{len(bad)} jobs not COMPLETED, rows contain default values: {bad}")
@@ -267,6 +337,8 @@ def outcomes_to_list(outcomes: list) -> list[dict]:
 		d = {**(oc.results or {}), 'status': oc.status, 'job_name': oc.job_name}
 		if oc.error:
 			d['error'] = oc.error
+		if oc.diagnostics:
+			d['diagnostics'] = oc.diagnostics
 		out.append(d)
 	return out
 
@@ -297,5 +369,7 @@ def outcomes_to_dict(outcomes: list) -> dict[str, dict]:
 		d = {**(oc.results or {}), 'status': oc.status}
 		if oc.error:
 			d['error'] = oc.error
+		if oc.diagnostics:
+			d['diagnostics'] = oc.diagnostics
 		out[oc.job_name] = d
 	return out

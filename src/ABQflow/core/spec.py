@@ -69,6 +69,11 @@ class JobSpec:
 	preparation : PreparationSpec or None
 		Preparation spec; required when ``workflow='modular'``, ignored for
 		monolithic.
+	preflight : str, default=None
+		Preflight mode for modular workflows. 
+		- None: No preflight checks (default)
+		- 'syntaxcheck': Run abaqus syntax check
+		- 'datacheck': Run abaqus datacheck
 	monolithic_script : str or None
 		Path to the monolithic script; required when
 		``workflow='monolithic'``.
@@ -85,6 +90,7 @@ class JobSpec:
 	job_name: str
 	workflow: str = 'modular'
 	preparation: PreparationSpec | None = None
+	preflight: str | None = None  # IMP-04: None | 'syntaxcheck' | 'datacheck'
 	monolithic_script: str | None = None
 	monolithic_params: dict = field(default_factory=dict)
 	pre_extraction: list[HookSpec] = field(default_factory=list)
@@ -111,6 +117,11 @@ class JobSpec:
 			raise ValueError(f"[{self.job_name}] modular workflow requires 'preparation'")
 		if self.workflow == 'monolithic' and not self.monolithic_script:
 			raise ValueError(f"[{self.job_name}] monolithic workflow requires 'monolithic_script'")
+		if self.preflight is not None and self.preflight not in ('syntaxcheck', 'datacheck'):
+			raise ValueError(
+				f"[{self.job_name}] preflight must be 'syntaxcheck', 'datacheck', or None; "
+				f"got '{self.preflight}'."
+			)
 		if (self.preparation is not None
 				and self.preparation.kind == 'existing_inp'
 				and self.preparation.params):
