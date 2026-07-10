@@ -3753,7 +3753,7 @@ _PickedSet8, XSYMM
 ** 
 ** Name: Load   Type: Pressure
 *Dsload
-_PickedSurf4, P, -{{load_magnitude}}.
+_PickedSurf4, P, -{{load_magnitude}}
 ** 
 ** OUTPUT REQUESTS
 ** 

@@ -201,7 +201,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/architecture.html">Architecture</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../source/modules.html">ABQflow</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of ABQflow</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../source/ABQflow.html">ABQflow package</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../source/ABQflow.html">ABQflow package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of ABQflow package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../source/ABQflow.core.html">ABQflow.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../source/ABQflow.helpers.html">ABQflow.helpers package</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -242,17 +246,51 @@
 <span></span><span class="sd">&quot;&quot;&quot;AbaqusRunner — subprocess gateway that encapsulates every shell call a strategy needs.</span>
 
 <span class="sd">Provides environment detection (abqpy / CAE kernel / odbAccess), sentinel-based</span>
-<span class="sd">JSON extraction, and timeout-safe command execution.</span>
+<span class="sd">JSON extraction, timeout-safe command execution, solver diagnostics, and a</span>
+<span class="sd">``record_only`` dry-run mode (IMP-05).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">diagnose</span><span class="p">,</span> <span class="n">apply_truth_table</span><span class="p">,</span> <span class="n">SolverResult</span><span class="p">,</span> <span class="n">SolverDiagnostics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..helpers.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">RESULT_BEGIN</span><span class="p">,</span> <span class="n">RESULT_END</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Path to hookkit.py (staged into job output dir so hooks can import it)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">_HOOKKIT_SRC</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;hookkit.py&#39;</span><span class="p">)</span>
+<span class="n">_SIDECAR_KEY</span> <span class="o">=</span> <span class="s1">&#39;__file__&#39;</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># IMP-03: escalation-ladder constants</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">_GRACE_MIN</span> <span class="o">=</span> <span class="mi">30</span>    <span class="c1"># minimum grace period for terminate to write ODB (s)</span>
+<span class="n">_GRACE_MAX</span> <span class="o">=</span> <span class="mi">300</span>   <span class="c1"># maximum grace period (s) — beyond this terminate is stuck</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># IMP-05: dry-run data model</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="CommandRecord">
+<a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.CommandRecord">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandRecord</span><span class="p">:</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;One command that was (or would be) executed.&quot;&quot;&quot;</span>
+	<span class="n">stage</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># &#39;preflight&#39; | &#39;solver&#39; | &#39;hook:&lt;script&gt;&#39; | &#39;preparation&#39;</span>
+	<span class="n">cmd</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+	<span class="n">cwd</span><span class="p">:</span> <span class="nb">str</span></div>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_abqpy_installed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Return ``True`` if the ``abqpy`` package is importable.&quot;&quot;&quot;</span>
@@ -333,11 +371,142 @@
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">JobContext</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
-				<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+				<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">record_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">record_only</span> <span class="o">=</span> <span class="n">record_only</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">command_log</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CommandRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_has_abqpy</span> <span class="o">=</span> <span class="n">_check_abqpy_installed</span><span class="p">()</span>
+
+	<span class="c1"># ---- IMP-03: terminate escalation ladder helpers ----</span>
+
+	<span class="k">def</span><span class="w"> </span><span class="nf">_grace_period</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Compute the grace period G = clamp(0.05 × T, 30, 300) seconds.&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">_GRACE_MAX</span>
+		<span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">_GRACE_MIN</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">),</span> <span class="n">_GRACE_MAX</span><span class="p">))</span>
+
+	<span class="k">def</span><span class="w"> </span><span class="nf">_terminate_abaqus_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Level 1: send ``abaqus terminate job=&lt;name&gt;`` for graceful shutdown.&quot;&quot;&quot;</span>
+		<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">abaqus_exe</span><span class="p">,</span> <span class="s1">&#39;terminate&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;job=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Escalation level 1: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;terminate command failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+	<span class="k">def</span><span class="w"> </span><span class="nf">_kill_process_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Level 3: force-kill the entire process tree.</span>
+
+<span class="sd">		Uses ``taskkill /T`` on Windows, ``os.killpg`` on POSIX.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Escalation level 3: killing process tree of PID </span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span><span class="p">:</span>
+				<span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+					<span class="p">[</span><span class="s1">&#39;taskkill&#39;</span><span class="p">,</span> <span class="s1">&#39;/T&#39;</span><span class="p">,</span> <span class="s1">&#39;/F&#39;</span><span class="p">,</span> <span class="s1">&#39;/PID&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">)],</span>
+					<span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+				<span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">killpg</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGKILL</span><span class="p">)</span>  <span class="c1"># ponytail: SIGKILL is nuclear but correct here</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Force-kill failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+	<span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_lck</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Level 4: remove ``&lt;job&gt;.lck`` so the job can be re-run.&quot;&quot;&quot;</span>
+		<span class="n">lck</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.lck&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lck</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Escalation level 4: removing </span><span class="si">{</span><span class="n">lck</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">lck</span><span class="p">)</span>
+			<span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to remove .lck: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+	<span class="c1"># ---- hookkit staging (HK-01 §3.5) ----</span>
+	<span class="k">def</span><span class="w"> </span><span class="nf">_stage_hookkit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Copy ``hookkit.py`` into the job output dir so hooks can ``import hookkit``.</span>
+
+<span class="sd">		Uses content-hash comparison: if an identical file already exists the</span>
+<span class="sd">		copy is skipped (re-run safe).  The file is NOT deleted afterwards —</span>
+<span class="sd">		it is a reproducible artifact of the job run.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">_HOOKKIT_SRC</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;hookkit.py not found at </span><span class="si">%s</span><span class="s2"> — hooks using hookkit will fail&quot;</span><span class="p">,</span> <span class="n">_HOOKKIT_SRC</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;hookkit.py&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dst</span><span class="p">):</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_HOOKKIT_SRC</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">src_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">dst_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+			<span class="k">if</span> <span class="n">src_hash</span> <span class="o">==</span> <span class="n">dst_hash</span><span class="p">:</span>
+				<span class="k">return</span>  <span class="c1"># already present and identical</span>
+		<span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">_HOOKKIT_SRC</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+
+	<span class="c1"># ---- envelope validation (HK-01 §3.6) ----</span>
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span><span class="w"> </span><span class="nf">_validate_envelope</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Validate a sidecar envelope and return an enriched copy, or ``None``.</span>
+
+<span class="sd">		Steps (in order):</span>
+<span class="sd">		1. Path safety — reject ``../`` escapes and absolute paths.</span>
+<span class="sd">		2. Existence — reject missing or zero-byte files.</span>
+<span class="sd">		3. Metadata augmentation — fill missing ``columns`` / ``shape``;</span>
+<span class="sd">		   if claimed ``shape`` differs from file, overwrite + warn.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+			<span class="k">return</span> <span class="n">value</span>  <span class="c1"># not a sidecar</span>
+
+		<span class="n">file_name</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_SIDECAR_KEY</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">value</span>  <span class="c1"># not a sidecar</span>
+
+		<span class="c1"># 1. Path safety</span>
+		<span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">abs_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">):</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+				<span class="s2">&quot;Sidecar path escape rejected: &#39;</span><span class="si">%s</span><span class="s2">&#39; → result set to None&quot;</span><span class="p">,</span> <span class="n">file_name</span>
+			<span class="p">)</span>
+			<span class="k">return</span> <span class="kc">None</span>
+
+		<span class="c1"># 2. Existence</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">abs_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">abs_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+				<span class="s2">&quot;Sidecar file missing or empty: &#39;</span><span class="si">%s</span><span class="s2">&#39; → result set to None&quot;</span><span class="p">,</span> <span class="n">abs_path</span>
+			<span class="p">)</span>
+			<span class="k">return</span> <span class="kc">None</span>
+
+		<span class="c1"># 3. Metadata augmentation — file is authoritative</span>
+		<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_csv</span>
+		<span class="n">enriched</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">reader</span> <span class="o">=</span> <span class="n">_csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+				<span class="n">header</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+				<span class="n">actual_rows</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot read sidecar CSV &#39;</span><span class="si">%s</span><span class="s2">&#39;: </span><span class="si">%s</span><span class="s2"> → result set to None&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">None</span>
+
+		<span class="n">actual_n_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+		<span class="c1"># Warn if claimed shape differs from reality (envelope-lying detection)</span>
+		<span class="n">claimed_shape</span> <span class="o">=</span> <span class="n">enriched</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shape&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">claimed_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">claimed_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">actual_rows</span> <span class="ow">or</span> <span class="n">claimed_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">actual_n_cols</span><span class="p">:</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+					<span class="s2">&quot;Sidecar shape mismatch: claimed </span><span class="si">%s</span><span class="s2">, file has [</span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">] — using file&quot;</span><span class="p">,</span>
+					<span class="n">claimed_shape</span><span class="p">,</span> <span class="n">actual_rows</span><span class="p">,</span> <span class="n">actual_n_cols</span><span class="p">,</span>
+				<span class="p">)</span>
+
+		<span class="n">enriched</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span>
+		<span class="n">enriched</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">actual_rows</span><span class="p">,</span> <span class="n">actual_n_cols</span><span class="p">]</span>
+
+		<span class="k">return</span> <span class="n">enriched</span>
 
 	<span class="c1"># ---- Execution environment selection (fix B5/B6/B11) ----</span>
 	<span class="k">def</span><span class="w"> </span><span class="nf">_base_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">needs_cae_kernel</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -371,19 +540,183 @@
 
 <div class="viewcode-block" id="AbaqusRunner.run_solver">
 <a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.AbaqusRunner.run_solver">[docs]</a>
-	<span class="k">def</span><span class="w"> </span><span class="nf">run_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+	<span class="k">def</span><span class="w"> </span><span class="nf">run_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SolverResult</span><span class="p">:</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Submit the INP file to the Abaqus solver and wait for completion.</span>
 
-<span class="sd">		Runs ``abaqus job=&lt;name&gt; input=&lt;inp&gt; cpus=&lt;N&gt; interactive``.</span>
+<span class="sd">		Uses :class:`~subprocess.Popen` with process-group isolation so that</span>
+<span class="sd">		the terminate escalation ladder can reach solver child processes</span>
+<span class="sd">		(``standard.exe`` / ``explicit.exe``) — something ``subprocess.run``</span>
+<span class="sd">		cannot do.</span>
+
+<span class="sd">		Escalation ladder (IMP-03):</span>
+
+<span class="sd">		0. Normal wait up to ``self.timeout``.</span>
+<span class="sd">		1. Graceful: ``abaqus terminate job=&lt;name&gt;``.</span>
+<span class="sd">		2. Grace period G = clamp(0.05 × T, 30, 300) s.</span>
+<span class="sd">		3. Force-kill the process tree (``taskkill /T`` or ``os.killpg``).</span>
+<span class="sd">		4. Remove ``&lt;job&gt;.lck`` so the job can be re-run.</span>
+
+<span class="sd">		After the solver process exits (by any means), :func:`diagnose` is</span>
+<span class="sd">		called and the truth table applied.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		bool</span>
-<span class="sd">			``True`` if the solver exited successfully, ``False`` on failure</span>
-<span class="sd">			(including timeout).</span>
+<span class="sd">		SolverResult</span>
+<span class="sd">			Success/failure judgment with diagnostics.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">abaqus_exe</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;job=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;input=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cpus=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">cpus</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;interactive&#39;</span><span class="p">]</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+		<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">abaqus_exe</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;job=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+			   <span class="sa">f</span><span class="s1">&#39;input=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cpus=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">cpus</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;interactive&#39;</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_only</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">command_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommandRecord</span><span class="p">(</span><span class="s1">&#39;solver&#39;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[record_only] would run: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">SolverResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">diagnostics</span><span class="o">=</span><span class="n">SolverDiagnostics</span><span class="p">())</span>
+
+		<span class="c1"># ---- launch with process-group isolation ----</span>
+		<span class="n">popts</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cwd&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">}</span>
+		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span><span class="p">:</span>
+			<span class="n">popts</span><span class="p">[</span><span class="s1">&#39;creationflags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CREATE_NEW_PROCESS_GROUP</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">popts</span><span class="p">[</span><span class="s1">&#39;start_new_session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="c1"># Discard console stdout/stderr — solver writes its own .log/.sta/.msg/.dat</span>
+		<span class="n">popts</span><span class="p">[</span><span class="s1">&#39;stdout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span>
+		<span class="n">popts</span><span class="p">[</span><span class="s1">&#39;stderr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">popts</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solver launch failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="n">diag</span> <span class="o">=</span> <span class="n">diagnose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">SolverResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">diagnostics</span><span class="o">=</span><span class="n">diag</span><span class="p">)</span>
+
+		<span class="c1"># ---- escalation ladder ----</span>
+		<span class="n">returncode</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="n">escalation_level</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">T</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+				<span class="n">returncode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+				<span class="n">returncode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
+		<span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+			<span class="c1"># Level 1: graceful terminate</span>
+			<span class="n">escalation_level</span> <span class="o">=</span> <span class="mi">1</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_terminate_abaqus_job</span><span class="p">()</span>
+
+			<span class="c1"># Level 2: grace period</span>
+			<span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grace_period</span><span class="p">()</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">G</span><span class="p">)</span>
+				<span class="n">returncode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
+			<span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+				<span class="c1"># Level 3: force kill</span>
+				<span class="n">escalation_level</span> <span class="o">=</span> <span class="mi">3</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_kill_process_tree</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+				<span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+					<span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+					<span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+				<span class="n">returncode</span> <span class="o">=</span> <span class="kc">None</span>
+
+			<span class="c1"># Level 4: .lck cleanup (always, regardless of whether force-kill was needed)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_lck</span><span class="p">()</span>
+
+		<span class="c1"># ---- diagnose and apply truth table ----</span>
+		<span class="n">diag</span> <span class="o">=</span> <span class="n">diagnose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">returncode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">returncode</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">success</span><span class="p">,</span> <span class="n">warning</span> <span class="o">=</span> <span class="n">apply_truth_table</span><span class="p">(</span><span class="n">returncode</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">sta_verdict</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">success</span><span class="p">,</span> <span class="n">warning</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+		<span class="c1"># Error message</span>
+		<span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+			<span class="n">error_msg</span> <span class="o">=</span> <span class="n">warning</span>  <span class="c1"># only populated for rc≠0+COMPLETED edge case</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">diag</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+				<span class="n">error_msg</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">errors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="k">elif</span> <span class="n">escalation_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+					<span class="sa">f</span><span class="s2">&quot;Timeout after </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">s, &quot;</span>
+					<span class="sa">f</span><span class="s2">&quot;terminated via escalation ladder (level </span><span class="si">{</span><span class="n">escalation_level</span><span class="si">}</span><span class="s2">)&quot;</span>
+				<span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+					<span class="sa">f</span><span class="s2">&quot;Abaqus exited with rc=</span><span class="si">{</span><span class="n">returncode</span><span class="si">}</span><span class="s2">, &quot;</span>
+					<span class="sa">f</span><span class="s2">&quot;.sta verdict=</span><span class="si">{</span><span class="n">diag</span><span class="o">.</span><span class="n">sta_verdict</span><span class="si">}</span><span class="s2">&quot;</span>
+				<span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">SolverResult</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="n">success</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">diagnostics</span><span class="o">=</span><span class="n">diag</span><span class="p">)</span></div>
+
+
+	<span class="c1"># ---- IMP-04: preflight ----</span>
+
+<div class="viewcode-block" id="AbaqusRunner.run_preflight">
+<a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.AbaqusRunner.run_preflight">[docs]</a>
+	<span class="k">def</span><span class="w"> </span><span class="nf">run_preflight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Run an Abaqus syntax/datacheck on the INP before the real solve.</span>
+
+<span class="sd">		Uses a temporary job name ``&lt;job&gt;_chk`` so preflight output files</span>
+<span class="sd">		(``.dat``, ``.odb``) never overwrite the real job&#39;s files.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		mode : str</span>
+<span class="sd">			``&#39;syntaxcheck&#39;`` or ``&#39;datacheck&#39;``.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		tuple[bool, list[str]]</span>
+<span class="sd">			``(passed, errors)`` — *errors* are harvested from the temporary</span>
+<span class="sd">			``.dat`` file via :func:`harvest_errors` (IMP-01/04 synergy).</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">chk_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">_chk&quot;</span>
+		<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">abaqus_exe</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;job=</span><span class="si">{</span><span class="n">chk_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+			   <span class="sa">f</span><span class="s1">&#39;input=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;datacheck&#39;</span><span class="p">:</span>
+			<span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;cpus=1&#39;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_only</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">command_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommandRecord</span><span class="p">(</span><span class="s1">&#39;preflight&#39;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[record_only] would run: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">[])</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">returncode</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+				<span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+				<span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">or</span> <span class="mi">300</span><span class="p">,</span>
+			<span class="p">)</span>
+			<span class="n">returncode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
+		<span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">] timed out&quot;</span><span class="p">)</span>
+			<span class="n">returncode</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">] launch failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)])</span>
+
+		<span class="c1"># Harvest errors from the temporary .dat file</span>
+		<span class="kn">from</span><span class="w"> </span><span class="nn">.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">harvest_errors</span>
+		<span class="n">chk_dat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chk_name</span><span class="si">}</span><span class="s2">.dat&quot;</span><span class="p">)</span>
+		<span class="n">errors</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">harvest_errors</span><span class="p">(</span><span class="n">chk_dat</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">chk_dat</span><span class="p">)</span> <span class="k">else</span> <span class="p">([],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+		<span class="c1"># Cleanup temporary preflight files</span>
+		<span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;.msg&#39;</span><span class="p">,</span> <span class="s1">&#39;.sta&#39;</span><span class="p">,</span> <span class="s1">&#39;.log&#39;</span><span class="p">,</span> <span class="s1">&#39;.odb&#39;</span><span class="p">,</span> <span class="s1">&#39;.com&#39;</span><span class="p">,</span> <span class="s1">&#39;.prt&#39;</span><span class="p">,</span> <span class="s1">&#39;.lck&#39;</span><span class="p">,</span>
+					<span class="s1">&#39;.sim&#39;</span><span class="p">,</span> <span class="s1">&#39;.par&#39;</span><span class="p">,</span> <span class="s1">&#39;.pes&#39;</span><span class="p">,</span> <span class="s1">&#39;.abq&#39;</span><span class="p">,</span> <span class="s1">&#39;.mdl&#39;</span><span class="p">,</span> <span class="s1">&#39;.stt&#39;</span><span class="p">,</span> <span class="s1">&#39;.023&#39;</span><span class="p">):</span>
+			<span class="n">tmpf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chk_name</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">tmpf</span><span class="p">):</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmpf</span><span class="p">)</span>
+				<span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+					<span class="k">pass</span>
+
+		<span class="n">passed</span> <span class="o">=</span> <span class="p">(</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">passed</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AbaqusRunner.run_hook">
@@ -399,8 +732,15 @@
 
 <span class="sd">		Writes tasks to a temporary JSON file, launches the script via</span>
 <span class="sd">		:meth:`_base_command` (so the correct environment is used), appends</span>
-<span class="sd">		``common_args`` and ``--tasks_json``, then extracts the JSON result</span>
-<span class="sd">		payload from stdout.</span>
+<span class="sd">		``common_args``, ``--job_name``, and ``--tasks_json``, then extracts</span>
+<span class="sd">		the JSON result payload from stdout.</span>
+
+<span class="sd">		Before execution, :meth:`_stage_hookkit` copies ``hookkit.py`` into</span>
+<span class="sd">		the job output directory so hooks can ``import hookkit``.</span>
+
+<span class="sd">		After execution, every sidecar envelope in the results dict passes</span>
+<span class="sd">		through :meth:`_validate_envelope` for path-safety, existence, and</span>
+<span class="sd">		metadata-augmentation checks.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
@@ -425,6 +765,19 @@
 
 		<span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">script_path</span><span class="p">)</span>
 
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_only</span><span class="p">:</span>
+			<span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_command</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">needs_cae_kernel</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">common_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+			<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;--job_name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="p">]</span>
+			<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;--tasks_json&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;generated-at-runtime&gt;&#39;</span><span class="p">]</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">command_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommandRecord</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;hook:</span><span class="si">{</span><span class="n">script_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[record_only] would run hook: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;result_name&#39;</span><span class="p">]:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">}</span>
+
+		<span class="c1"># Stage hookkit into the job output dir (HK-01 §3.5)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_stage_hookkit</span><span class="p">()</span>
+
 		<span class="n">tmp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;tasks_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span>
 		<span class="k">try</span><span class="p">:</span>
 			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -433,12 +786,22 @@
 			<span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_command</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">needs_cae_kernel</span><span class="p">)</span>
 			<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">common_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 				<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+			<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;--job_name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">job_name</span><span class="p">]</span>
 			<span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;--tasks_json&#39;</span><span class="p">,</span> <span class="n">tmp</span><span class="p">]</span>
 
 			<span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">proc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 				<span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;result_name&#39;</span><span class="p">]:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">}</span>
-			<span class="k">return</span> <span class="n">extract_json</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+			<span class="n">results</span> <span class="o">=</span> <span class="n">extract_json</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+			<span class="c1"># Validate sidecar envelopes (HK-01 §3.6)</span>
+			<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_SIDECAR_KEY</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+					<span class="n">validated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_envelope</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+					<span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">validated</span>
+
+			<span class="k">return</span> <span class="n">results</span>
 		<span class="k">finally</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
 				<span class="c1"># os.remove(tmp)</span>
@@ -464,6 +827,17 @@
 <span class="sd">		subprocess.CompletedProcess or None</span>
 <span class="sd">			Completed process on success, ``None`` on timeout or non-zero exit.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_only</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">command_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommandRecord</span><span class="p">(</span><span class="s1">&#39;hook&#39;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[record_only] would run: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+			<span class="c1"># Return a fake success — caller checks for None</span>
+			<span class="c1"># ponytail: fake CompletedProcess; use a real one only if a caller</span>
+			<span class="c1"># accesses .returncode / .stdout beyond the current usage pattern</span>
+			<span class="k">class</span><span class="w"> </span><span class="nc">_FakeProc</span><span class="p">:</span>
+				<span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+				<span class="n">stdout</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span>
+			<span class="k">return</span> <span class="n">_FakeProc</span><span class="p">()</span>
+
 		<span class="k">try</span><span class="p">:</span>
 			<span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
 				<span class="n">cmd</span><span class="p">,</span>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ABQflow.helpers.convert - ABQflow 0.3.0 documentation</title>
+        <title>ABQflow.helpers.convert - ABQflow 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -165,7 +165,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">ABQflow 0.3.0 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">ABQflow 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">ABQflow 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">ABQflow 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -262,6 +262,71 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..core.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobSpec</span><span class="p">,</span> <span class="n">PreparationSpec</span>
 
 
+<span class="c1"># ======================== IMP-06: sidecar CSV contract ========================</span>
+
+<span class="n">_SIDECAR_KEY</span> <span class="o">=</span> <span class="s1">&#39;__file__&#39;</span>
+
+
+<div class="viewcode-block" id="is_sidecar">
+<a class="viewcode-back" href="../../../source/ABQflow.helpers.html#ABQflow.is_sidecar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_sidecar</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Return ``True`` if *value* is a sidecar envelope (dict with ``__file__``).</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	value : any</span>
+<span class="sd">		Value to test.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	bool</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_SIDECAR_KEY</span> <span class="ow">in</span> <span class="n">value</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_sidecar">
+<a class="viewcode-back" href="../../../source/ABQflow.helpers.html#ABQflow.resolve_sidecar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_sidecar</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">load</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Resolve a sidecar envelope to an absolute path and optional data.</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	value : dict</span>
+<span class="sd">		Sidecar envelope: ``{&#39;__file__&#39;: path, &#39;format&#39;: &#39;csv&#39;, ...}``.</span>
+<span class="sd">	output_dir : str</span>
+<span class="sd">		Directory that ``__file__`` is relative to.</span>
+<span class="sd">	load : bool</span>
+<span class="sd">		If ``True``, load the file and return a ``numpy.ndarray``.</span>
+<span class="sd">		Default ``False`` (lazy — returns the absolute path).</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	tuple[str, dict] or tuple[numpy.ndarray, dict]</span>
+<span class="sd">		``(absolute_path, metadata)`` when ``load=False``;</span>
+<span class="sd">		``(ndarray, metadata)`` when ``load=True``.</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	------</span>
+<span class="sd">	ValueError</span>
+<span class="sd">		If the envelope is missing ``__file__`` or the file doesn&#39;t exist.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">is_sidecar</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not a sidecar envelope (missing &#39;</span><span class="si">{</span><span class="n">_SIDECAR_KEY</span><span class="si">}</span><span class="s2">&#39; key)&quot;</span><span class="p">)</span>
+	<span class="n">rel</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">_SIDECAR_KEY</span><span class="p">]</span>
+	<span class="n">abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">rel</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">abspath</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sidecar file not found: </span><span class="si">{</span><span class="n">abspath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+		<span class="c1"># ponytail: np.loadtxt covers CSV; add np.load for .npy when needed</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">abspath</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">_SIDECAR_KEY</span><span class="p">}</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span>
+	<span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">_SIDECAR_KEY</span><span class="p">}</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">abspath</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span></div>
+
+
+
 <span class="c1"># ======================== Job name sanitisation ========================</span>
 
 <span class="c1"># Abaqus job name rules: max 80 chars, start with letter, [A-Za-z0-9_-] only.</span>
@@ -315,9 +380,10 @@
 <span class="sd">	naming : str</span>
 <span class="sd">		Job-name generation rule:</span>
 
-<span class="sd">		* ``&#39;stem&#39;`` (default) — use the INP filename without extension,</span>
+<span class="sd">		* ``&#39;stem&#39;`` (default) - use the INP filename without extension,</span>
 <span class="sd">		sanitised via :func:`sanitize_job_name`.</span>
-<span class="sd">		* ``&#39;indexed&#39;`` — ``{base_spec.job_name}_{i:04d}``.</span>
+<span class="sd">		* ``&#39;indexed&#39;`` - ``{base_spec.job_name}_{i:04d}``.</span>
+<span class="sd">		</span>
 <span class="sd">	sort : bool</span>
 <span class="sd">		If ``True`` (default), sort files by natural key order.</span>
 
@@ -492,7 +558,18 @@
 		<span class="k">if</span> <span class="n">require_completed</span> <span class="ow">and</span> <span class="n">oc</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;COMPLETED&quot;</span><span class="p">:</span>
 			<span class="n">bad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">job_name</span><span class="p">)</span>
 		<span class="n">r</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">results</span> <span class="ow">or</span> <span class="p">{}</span>
-		<span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">default_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">output_names</span><span class="p">])</span>
+		<span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">output_names</span><span class="p">:</span>
+			<span class="n">v</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">default_value</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">is_sidecar</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+					<span class="sa">f</span><span class="s2">&quot;Sidecar envelope found for &#39;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&#39; in job &#39;</span><span class="si">{</span><span class="n">oc</span><span class="o">.</span><span class="n">job_name</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+					<span class="sa">f</span><span class="s2">&quot;Sidecar data (large-field results) cannot be packed into a &quot;</span>
+					<span class="sa">f</span><span class="s2">&quot;matrix. Use resolve_sidecar() to load explicitly, or remove &quot;</span>
+					<span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&#39; from output_names.&quot;</span>
+				<span class="p">)</span>
+			<span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+		<span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
 	<span class="k">if</span> <span class="n">bad</span><span class="p">:</span>
 		<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span><span class="si">}</span><span class="s2"> jobs not COMPLETED, rows contain default values: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -526,6 +603,8 @@
 		<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">results</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">oc</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;job_name&#39;</span><span class="p">:</span> <span class="n">oc</span><span class="o">.</span><span class="n">job_name</span><span class="p">}</span>
 		<span class="k">if</span> <span class="n">oc</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
 			<span class="n">d</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">error</span>
+		<span class="k">if</span> <span class="n">oc</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">:</span>
+			<span class="n">d</span><span class="p">[</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">diagnostics</span>
 		<span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 	<span class="k">return</span> <span class="n">out</span></div>
 
@@ -559,6 +638,8 @@
 		<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">results</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">oc</span><span class="o">.</span><span class="n">status</span><span class="p">}</span>
 		<span class="k">if</span> <span class="n">oc</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
 			<span class="n">d</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">error</span>
+		<span class="k">if</span> <span class="n">oc</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">:</span>
+			<span class="n">d</span><span class="p">[</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">diagnostics</span>
 		<span class="n">out</span><span class="p">[</span><span class="n">oc</span><span class="o">.</span><span class="n">job_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
 	<span class="k">return</span> <span class="n">out</span></div>
 
@@ -601,7 +682,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=e4caa2eb"></script>
+</div><script src="../../../_static/documentation_options.js?v=8ee541af"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

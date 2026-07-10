@@ -33,7 +33,7 @@ class PreparationSpec:
 	Attributes
 	----------
 	kind : str
-		Preparation strategy identifier.  Currently ``'inp_based'`` or
+		Preparation strategy identifier.  Currently ``'inp_based'``, ``'existing_inp'``, or
 		``'model_generation'``.
 	source_path : str
 		Path to the base INP file (for ``inp_based``) or model-generation

@@ -9,7 +9,7 @@ dependencies = [
 name = "ABQflow"
 description = "A modular batch-processing framework for Abaqus FEA — typed job specs, strategy pattern workflow, fault-tolerant parallel execution, and resource-aware scheduling."
 requires-python = ">=3.9"
-version = "0.3.0"
+version = "0.4.0"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ABQflow"]

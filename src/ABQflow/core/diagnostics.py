@@ -332,15 +332,27 @@ def apply_truth_table(returncode: int, sta_verdict: str) -> tuple[bool, str | No
 	The principle: **.sta's ``COMPLETED`` marker is the only success
 	certificate; the return code is merely corroborating evidence.**
 
-	==========  ===================  ==============
-	returncode  sta_verdict           result
-	==========  ===================  ==============
-	0           COMPLETED             **success**
-	0           NOT_COMPLETED/ABORTED failure
-	0           INDETERMINATE         failure (suspicious — rc=0 but no marker)
-	≠0          COMPLETED             **success** (warning: cleanup error)
-	≠0          any other             failure
-	==========  ===================  ==============
+	.. list-table:: Truth table
+	   :header-rows: 1
+
+	   * - returncode
+	     - sta_verdict
+	     - result
+	   * - 0
+	     - COMPLETED
+	     - **success**
+	   * - 0
+	     - NOT_COMPLETED / ABORTED
+	     - failure
+	   * - 0
+	     - INDETERMINATE
+	     - failure (rc=0 but no .sta marker)
+	   * - !=0
+	     - COMPLETED
+	     - **success** (warning: cleanup error)
+	   * - !=0
+	     - any other
+	     - failure
 
 	Parameters
 	----------

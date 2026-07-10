@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ABQflow.helpers package" href="ABQflow.helpers.html" /><link rel="prev" title="ABQflow package" href="ABQflow.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ABQflow.core package - ABQflow 0.3.0 documentation</title>
+        <title>ABQflow.core package - ABQflow 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ABQflow 0.3.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">ABQflow 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ABQflow 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">ABQflow 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -273,6 +273,56 @@
 </dl>
 </section>
 <dl class="py class">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobPlan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">JobPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_summary=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#JobPlan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobPlan" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Dry-run output for a single job — commands, paths, and resource summary.</p>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>job_name<span class="classifier">str</span></dt><dd><p>Job identifier.</p>
+</dd>
+<dt>commands<span class="classifier">list</span></dt><dd><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">CommandRecord</span></code> instances.</p>
+</dd>
+<dt>paths<span class="classifier">dict[str, str]</span></dt><dd><p>Expected file paths (<code class="docutils literal notranslate"><span class="pre">inp</span></code>, <code class="docutils literal notranslate"><span class="pre">odb</span></code>, <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>).</p>
+</dd>
+<dt>resource_summary<span class="classifier">dict</span></dt><dd><p>Planned CPUs, token estimate, and parallelism info.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobPlan.job_name">
+<span class="sig-name descname"><span class="pre">job_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobPlan.job_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobPlan.commands">
+<span class="sig-name descname"><span class="pre">commands</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobPlan.commands" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobPlan.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobPlan.paths" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobPlan.resource_summary">
+<span class="sig-name descname"><span class="pre">resource_summary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobPlan.resource_summary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>job_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>commands</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+<li><p><strong>resource_summary</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.AbaqusCalculation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">AbaqusCalculation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow_strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abaqus_exe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'abaqus'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#AbaqusCalculation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.AbaqusCalculation" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -280,8 +330,8 @@
 <p>No side effects in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> (only creates the output directory and
 builds the immutable JobContext).  The logger is created lazily on the
 first call to <a class="reference internal" href="#ABQflow.core.abaqus_automation.AbaqusCalculation.execute" title="ABQflow.core.abaqus_automation.AbaqusCalculation.execute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">execute()</span></code></a>.</p>
-<section id="attributes">
-<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h3>Attributes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>job_name<span class="classifier">str</span></dt><dd><p>Unique job identifier.</p>
 </dd>
@@ -334,13 +384,13 @@ delegates to <code class="docutils literal notranslate"><span class="pre">self.w
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobOutcome">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">JobOutcome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#JobOutcome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobOutcome" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">JobOutcome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#JobOutcome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobOutcome" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Unified result envelope returned from every job, pass or fail.</p>
 <p>Status is normalised to a plain string (<code class="docutils literal notranslate"><span class="pre">JobStatus.value</span></code>) so it
 serialises cleanly across process boundaries.</p>
-<section id="id1">
-<h3>Attributes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Attributes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>job_name<span class="classifier">str</span></dt><dd><p>Name of the job.</p>
 </dd>
@@ -350,6 +400,10 @@ serialises cleanly across process boundaries.</p>
 extraction.</p>
 </dd>
 <dt>error<span class="classifier">str or None</span></dt><dd><p>Error message if the job failed, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt>diagnostics<span class="classifier">dict or None</span></dt><dd><p>Solver diagnostics snapshot (IMP-02).  Populated on failure and
+on the <code class="docutils literal notranslate"><span class="pre">rc≠0</span> <span class="pre">+</span> <span class="pre">COMPLETED</span></code> edge case.  <code class="docutils literal notranslate"><span class="pre">None</span></code> for clean success
+or jobs that never reached the solver phase.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -372,6 +426,11 @@ extraction.</p>
 <span class="sig-name descname"><span class="pre">error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobOutcome.error" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.JobOutcome.diagnostics">
+<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ABQflow.core.abaqus_automation.JobOutcome.diagnostics" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -380,6 +439,7 @@ extraction.</p>
 <li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>results</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>)</p></li>
 <li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>diagnostics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -398,8 +458,8 @@ of Abaqus licensing behaviour.</p>
 </dd>
 </dl>
 </section>
-<section id="id2">
-<h3>Returns<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<h3>Returns<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>Estimated token count.</p>
 </dd>
@@ -425,8 +485,8 @@ of Abaqus licensing behaviour.</p>
 <li><p>License tokens (if provided).</p></li>
 <li><p>User-requested maximum.</p></li>
 </ol>
-<section id="id3">
-<h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>requested<span class="classifier">int</span></dt><dd><p>Desired number of parallel jobs.</p>
 </dd>
@@ -438,8 +498,8 @@ of Abaqus licensing behaviour.</p>
 </dd>
 </dl>
 </section>
-<section id="id4">
-<h3>Returns<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>Feasible parallelism level (at least 1).</p>
 </dd>
@@ -462,7 +522,7 @@ of Abaqus licensing behaviour.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.BatchAbaqusProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">BatchAbaqusProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abaqus_exe='abaqus'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_mode='fail'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt_fn=&lt;built-in</span> <span class="pre">function</span> <span class="pre">input&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#BatchAbaqusProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.abaqus_automation.</span></span><span class="sig-name descname"><span class="pre">BatchAbaqusProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abaqus_exe='abaqus'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_mode='fail'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt_fn=&lt;built-in</span> <span class="pre">function</span> <span class="pre">input&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight_only=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#BatchAbaqusProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Orchestrate a batch of Abaqus jobs through a three-phase lifecycle.</p>
 <ol class="arabic simple">
@@ -473,8 +533,8 @@ the <a class="reference internal" href="#ABQflow.core.abaqus_automation.AbaqusCa
 <li><p><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.run_batch" title="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.run_batch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_batch()</span></code></a> — execute via <a class="reference external" href="https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a>;
 one failure never affects sibling jobs.</p></li>
 </ol>
-<section id="id5">
-<h3>Attributes<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>Attributes<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>specs<span class="classifier">list[JobSpec]</span></dt><dd><p>Normalised list of job specifications.</p>
 </dd>
@@ -485,9 +545,9 @@ one failure never affects sibling jobs.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abaqus_exe='abaqus'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_mode='fail'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt_fn=&lt;built-in</span> <span class="pre">function</span> <span class="pre">input&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#BatchAbaqusProcessor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.__init__" title="Link to this definition">¶</a></dt>
-<dd><section id="id6">
-<h4>Parameters<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h4>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abaqus_exe='abaqus'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_mode='fail'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt_fn=&lt;built-in</span> <span class="pre">function</span> <span class="pre">input&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight_only=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#BatchAbaqusProcessor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.__init__" title="Link to this definition">¶</a></dt>
+<dd><section id="id7">
+<h4>Parameters<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>batch_data<span class="classifier">list[dict] or list[JobSpec]</span></dt><dd><p>Job configs as dicts or <code class="xref py py-class docutils literal notranslate"><span class="pre">JobSpec</span></code> objects.  Dicts are
 converted via <code class="xref py py-meth docutils literal notranslate"><span class="pre">JobSpec.from_dict()</span></code>.</p>
@@ -510,6 +570,9 @@ converted via <code class="xref py py-meth docutils literal notranslate"><span c
 </dd>
 <dt>timeout<span class="classifier">float or None</span></dt><dd><p>Per-subprocess timeout in seconds; <code class="docutils literal notranslate"><span class="pre">None</span></code> means no limit.</p>
 </dd>
+<dt>preflight_only<span class="classifier">bool</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only run preparation + preflight, skip solver &amp;
+extraction (IMP-04 batch inspection mode).</p>
+</dd>
 </dl>
 </section>
 <dl class="field-list simple">
@@ -521,7 +584,47 @@ converted via <code class="xref py py-meth docutils literal notranslate"><span c
 <li><p><strong>abaqus_exe</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>duplicate_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>preflight_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.dry_run">
+<span class="sig-name descname"><span class="pre">dry_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plan'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/abaqus_automation.html#BatchAbaqusProcessor.dry_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.dry_run" title="Link to this definition">¶</a></dt>
+<dd><p>Inspect what the batch would do without executing it.</p>
+<p>Two levels (see IMP-05):</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'plan'</span></code> (default)</dt><dd><p><strong>Zero side effects.</strong>  Inspects each spec and builds a command
+plan without touching the filesystem.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'stage'</span></code></dt><dd><p>Runs the real preparation phase, but substitutes a
+<code class="docutils literal notranslate"><span class="pre">record_only</span></code> runner so solver and hook commands are
+logged, not executed.  <strong>Has filesystem side effects</strong>
+(<code class="docutils literal notranslate"><span class="pre">output_dir</span></code> is created, INPs are staged).</p>
+</dd>
+</dl>
+<section id="id8">
+<h4>Parameters<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>level<span class="classifier">str</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">'plan'</span></code> (L1, default) or <code class="docutils literal notranslate"><span class="pre">'stage'</span></code> (L2).</p>
+</dd>
+</dl>
+</section>
+<section id="id9">
+<h4>Returns<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>list[JobPlan]</dt><dd><p>One plan per job.</p>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan" title="ABQflow.core.abaqus_automation.JobPlan"><em>JobPlan</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -533,8 +636,8 @@ converted via <code class="xref py py-meth docutils literal notranslate"><span c
 <p>Pure read-only check — no directories are created, deleted, or
 renamed.  The decision for each job is one of: <code class="docutils literal notranslate"><span class="pre">'run'</span></code>,
 <code class="docutils literal notranslate"><span class="pre">'skip'</span></code>, <code class="docutils literal notranslate"><span class="pre">'overwrite'</span></code>, or a new name string (rename).</p>
-<section id="id7">
-<h4>Returns<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h4>
+<section id="id10">
+<h4>Returns<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict[str, str]</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{job_name:</span> <span class="pre">decision}</span></code> mapping.</p>
 </dd>
@@ -561,8 +664,8 @@ renamed.  The decision for each job is one of: <code class="docutils literal not
 <p>Side effects: directories may be deleted (<code class="docutils literal notranslate"><span class="pre">'overwrite'</span></code>) or
 specs may be renamed (<code class="docutils literal notranslate"><span class="pre">'rename'</span></code>).  Results are stored in
 <code class="docutils literal notranslate"><span class="pre">self.calculations</span></code>.</p>
-<section id="id8">
-<h4>Parameters<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
+<section id="id11">
+<h4>Parameters<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>decisions<span class="classifier">dict[str, str] or None</span></dt><dd><p>Decision map from <a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan" title="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plan()</span></code></a>.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>, <a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan" title="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plan()</span></code></a> is
 called first.</p>
@@ -582,8 +685,8 @@ called first.</p>
 <dd><p>Execute all prepared calculations via <a class="reference external" href="https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a>.</p>
 <p>If <a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.prepare" title="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.prepare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare()</span></code></a> has not been called yet it is invoked with a
 fresh call to <a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan" title="ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plan()</span></code></a>.</p>
-<section id="id9">
-<h4>Parameters<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h4>
+<section id="id12">
+<h4>Parameters<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>num_parallel_jobs<span class="classifier">int</span></dt><dd><p>Desired maximum concurrent jobs.</p>
 </dd>
@@ -591,8 +694,8 @@ fresh call to <a class="reference internal" href="#ABQflow.core.abaqus_automatio
 </dd>
 </dl>
 </section>
-<section id="id10">
-<h4>Returns<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h4>
+<section id="id13">
+<h4>Returns<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>list[JobOutcome]</dt><dd><p>One outcome per executed job.  Failed jobs are included with
 their error state — they do not halt the batch.</p>
@@ -622,6 +725,7 @@ their error state — they do not halt the batch.</p>
 <li><p><strong>abaqus_exe</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>duplicate_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>preflight_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -639,8 +743,8 @@ their error state — they do not halt the batch.</p>
 <p>Strategies depend on this object but cannot mutate it, preventing
 accidental cross-strategy side effects.  Every field is read-only
 after construction.</p>
-<section id="id11">
-<h3>Attributes<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<section id="id14">
+<h3>Attributes<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>job_name<span class="classifier">str</span></dt><dd><p>Unique identifier for this job (also used as directory name).</p>
 </dd>
@@ -689,6 +793,24 @@ after construction.</p>
 <dd><p>Absolute path to the job log file (<code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;job_name&gt;.log</span></code>).</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ABQflow.core.context.JobContext.sta_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sta_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.context.JobContext.sta_path" title="Link to this definition">¶</a></dt>
+<dd><p>Absolute path to the status file (<code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;job_name&gt;.sta</span></code>).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ABQflow.core.context.JobContext.msg_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">msg_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.context.JobContext.msg_path" title="Link to this definition">¶</a></dt>
+<dd><p>Absolute path to the message file (<code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;job_name&gt;.msg</span></code>).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ABQflow.core.context.JobContext.dat_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dat_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.context.JobContext.dat_path" title="Link to this definition">¶</a></dt>
+<dd><p>Absolute path to the data file (<code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;job_name&gt;.dat</span></code>).</p>
+</dd></dl>
+
 </section>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -716,8 +838,8 @@ framework code.</p>
 <p>After registration, users can set <code class="docutils literal notranslate"><span class="pre">PreparationSpec.kind</span></code> to <em>kind</em> and
 <a class="reference internal" href="#ABQflow.core.registry.build_workflow" title="ABQflow.core.registry.build_workflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_workflow()</span></code></a> will dispatch to <em>factory</em> automatically — no
 framework source changes required.</p>
-<section id="id12">
-<h3>Parameters<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
+<section id="id15">
+<h3>Parameters<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>kind<span class="classifier">str</span></dt><dd><p>Unique key for the preparation strategy (referenced in
 <code class="xref py py-class docutils literal notranslate"><span class="pre">PreparationSpec.kind</span></code>).</p>
@@ -739,7 +861,7 @@ and returns a <code class="xref py py-class docutils literal notranslate"><span 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ABQflow.core.registry.build_workflow">
-<span class="sig-prename descclassname"><span class="pre">ABQflow.core.registry.</span></span><span class="sig-name descname"><span class="pre">build_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/registry.html#build_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.registry.build_workflow" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ABQflow.core.registry.</span></span><span class="sig-name descname"><span class="pre">build_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/registry.html#build_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.registry.build_workflow" title="Link to this definition">¶</a></dt>
 <dd><p>Assemble a concrete <code class="xref py py-class docutils literal notranslate"><span class="pre">JobWorkflowStrategy</span></code> from a spec.</p>
 <ul class="simple">
 <li><p>Monolithic specs produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">MonolithicWorkflowStrategy</span></code>.</p></li>
@@ -747,22 +869,24 @@ and returns a <code class="xref py py-class docutils literal notranslate"><span 
 wrap pre/post-extraction hooks, and return a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">ModularWorkflowStrategy</span></code>.</p></li>
 </ul>
-<section id="id13">
-<h3>Parameters<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
+<section id="id16">
+<h3>Parameters<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>spec<span class="classifier">JobSpec</span></dt><dd><p>Validated job configuration.</p>
 </dd>
+<dt>preflight_only<span class="classifier">bool</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the workflow stops after preflight (IMP-04).</p>
+</dd>
 </dl>
 </section>
-<section id="id14">
-<h3>Returns<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
+<section id="id17">
+<h3>Returns<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>JobWorkflowStrategy</dt><dd><p>Ready-to-execute strategy chain.</p>
 </dd>
 </dl>
 </section>
-<section id="id15">
-<h3>Raises<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
+<section id="id18">
+<h3>Raises<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">spec.preparation.kind</span></code> is not registered.</p>
 </dd>
@@ -770,7 +894,10 @@ wrap pre/post-extraction hooks, and return a
 </section>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>spec</strong> (<a class="reference internal" href="#ABQflow.core.spec.JobSpec" title="ABQflow.core.spec.JobSpec"><em>JobSpec</em></a>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> (<a class="reference internal" href="#ABQflow.core.spec.JobSpec" title="ABQflow.core.spec.JobSpec"><em>JobSpec</em></a>)</p></li>
+<li><p><strong>preflight_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#ABQflow.core.strategies.JobWorkflowStrategy" title="ABQflow.core.strategies.JobWorkflowStrategy"><em>JobWorkflowStrategy</em></a></p>
@@ -783,7 +910,39 @@ wrap pre/post-extraction hooks, and return a
 <span id="abqflow-core-runner-module"></span><h2>ABQflow.core.runner module<a class="headerlink" href="#module-ABQflow.core.runner" title="Link to this heading">¶</a></h2>
 <p>AbaqusRunner — subprocess gateway that encapsulates every shell call a strategy needs.</p>
 <p>Provides environment detection (abqpy / CAE kernel / odbAccess), sentinel-based
-JSON extraction, and timeout-safe command execution.</p>
+JSON extraction, timeout-safe command execution, solver diagnostics, and a
+<code class="docutils literal notranslate"><span class="pre">record_only</span></code> dry-run mode (IMP-05).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ABQflow.core.runner.CommandRecord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.runner.</span></span><span class="sig-name descname"><span class="pre">CommandRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#CommandRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.CommandRecord" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>One command that was (or would be) executed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>cmd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>cwd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.runner.CommandRecord.stage">
+<span class="sig-name descname"><span class="pre">stage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.runner.CommandRecord.stage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.runner.CommandRecord.cmd">
+<span class="sig-name descname"><span class="pre">cmd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#ABQflow.core.runner.CommandRecord.cmd" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.runner.CommandRecord.cwd">
+<span class="sig-name descname"><span class="pre">cwd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#ABQflow.core.runner.CommandRecord.cwd" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="ABQflow.core.runner.extract_json">
 <span class="sig-prename descclassname"><span class="pre">ABQflow.core.runner.</span></span><span class="sig-name descname"><span class="pre">extract_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#extract_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.extract_json" title="Link to this definition">¶</a></dt>
@@ -793,22 +952,22 @@ JSON extraction, and timeout-safe command execution.</p>
 present the payload between them is parsed directly.  Otherwise falls
 back to a legacy brace-scan that searches from the <em>end</em> of the output
 (useful when Abaqus prints a banner before user code runs).</p>
-<section id="id16">
-<h3>Parameters<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
+<section id="id19">
+<h3>Parameters<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>text<span class="classifier">str</span></dt><dd><p>Raw stdout captured from a subprocess call.</p>
 </dd>
 </dl>
 </section>
-<section id="id17">
-<h3>Returns<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
+<section id="id20">
+<h3>Returns<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Parsed JSON payload.</p>
 </dd>
 </dl>
 </section>
-<section id="id18">
-<h3>Raises<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
+<section id="id21">
+<h3>Raises<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If no JSON object can be found or parsed.</p>
 </dd>
@@ -826,7 +985,7 @@ back to a legacy brace-scan that searches from the <em>end</em> of the output
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.runner.AbaqusRunner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.runner.</span></span><span class="sig-name descname"><span class="pre">AbaqusRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#AbaqusRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.AbaqusRunner" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.runner.</span></span><span class="sig-name descname"><span class="pre">AbaqusRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#AbaqusRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.AbaqusRunner" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Encapsulates every subprocess call a strategy may need.</p>
 <p>Detects the execution environment and routes commands accordingly:</p>
@@ -835,8 +994,8 @@ back to a legacy brace-scan that searches from the <em>end</em> of the output
 <li><p><strong>Needs CAE kernel</strong> (<code class="docutils literal notranslate"><span class="pre">mdb</span></code>) — uses <code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">cae</span> <span class="pre">noGUI=&lt;script&gt;</span></code>.</p></li>
 <li><p><strong>Only needs odbAccess</strong> — uses <code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">python</span> <span class="pre">&lt;script&gt;</span></code>.</p></li>
 </ul>
-<section id="id19">
-<h3>Attributes<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h3>
+<section id="id22">
+<h3>Attributes<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Frozen context providing job name, paths, CPU count, and Abaqus exe.</p>
 </dd>
@@ -849,18 +1008,61 @@ back to a legacy brace-scan that searches from the <em>end</em> of the output
 <dt class="sig sig-object py" id="ABQflow.core.runner.AbaqusRunner.run_solver">
 <span class="sig-name descname"><span class="pre">run_solver</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#AbaqusRunner.run_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.AbaqusRunner.run_solver" title="Link to this definition">¶</a></dt>
 <dd><p>Submit the INP file to the Abaqus solver and wait for completion.</p>
-<p>Runs <code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">job=&lt;name&gt;</span> <span class="pre">input=&lt;inp&gt;</span> <span class="pre">cpus=&lt;N&gt;</span> <span class="pre">interactive</span></code>.</p>
-<section id="id20">
-<h4>Returns<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h4>
+<p>Uses <a class="reference external" href="https://docs.python.org/3/library/subprocess.html#subprocess.Popen" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a> with process-group isolation so that
+the terminate escalation ladder can reach solver child processes
+(<code class="docutils literal notranslate"><span class="pre">standard.exe</span></code> / <code class="docutils literal notranslate"><span class="pre">explicit.exe</span></code>) — something <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code>
+cannot do.</p>
+<p>Escalation ladder (IMP-03):</p>
+<ol class="arabic simple" start="0">
+<li><p>Normal wait up to <code class="docutils literal notranslate"><span class="pre">self.timeout</span></code>.</p></li>
+<li><p>Graceful: <code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">terminate</span> <span class="pre">job=&lt;name&gt;</span></code>.</p></li>
+<li><p>Grace period G = clamp(0.05 × T, 30, 300) s.</p></li>
+<li><p>Force-kill the process tree (<code class="docutils literal notranslate"><span class="pre">taskkill</span> <span class="pre">/T</span></code> or <code class="docutils literal notranslate"><span class="pre">os.killpg</span></code>).</p></li>
+<li><p>Remove <code class="docutils literal notranslate"><span class="pre">&lt;job&gt;.lck</span></code> so the job can be re-run.</p></li>
+</ol>
+<p>After the solver process exits (by any means), <code class="xref py py-func docutils literal notranslate"><span class="pre">diagnose()</span></code> is
+called and the truth table applied.</p>
+<section id="id23">
+<h4>Returns<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h4>
 <dl class="simple">
-<dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the solver exited successfully, <code class="docutils literal notranslate"><span class="pre">False</span></code> on failure
-(including timeout).</p>
+<dt>SolverResult</dt><dd><p>Success/failure judgment with diagnostics.</p>
 </dd>
 </dl>
 </section>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="ABQflow.html#ABQflow.SolverResult" title="ABQflow.core.diagnostics.SolverResult"><em>SolverResult</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ABQflow.core.runner.AbaqusRunner.run_preflight">
+<span class="sig-name descname"><span class="pre">run_preflight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/runner.html#AbaqusRunner.run_preflight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.runner.AbaqusRunner.run_preflight" title="Link to this definition">¶</a></dt>
+<dd><p>Run an Abaqus syntax/datacheck on the INP before the real solve.</p>
+<p>Uses a temporary job name <code class="docutils literal notranslate"><span class="pre">&lt;job&gt;_chk</span></code> so preflight output files
+(<code class="docutils literal notranslate"><span class="pre">.dat</span></code>, <code class="docutils literal notranslate"><span class="pre">.odb</span></code>) never overwrite the real job’s files.</p>
+<section id="id24">
+<h4>Parameters<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>mode<span class="classifier">str</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">'syntaxcheck'</span></code> or <code class="docutils literal notranslate"><span class="pre">'datacheck'</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id25">
+<h4>Returns<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>tuple[bool, list[str]]</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(passed,</span> <span class="pre">errors)</span></code> — <em>errors</em> are harvested from the temporary
+<code class="docutils literal notranslate"><span class="pre">.dat</span></code> file via <code class="xref py py-func docutils literal notranslate"><span class="pre">harvest_errors()</span></code> (IMP-01/04 synergy).</p>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -871,10 +1073,15 @@ back to a legacy brace-scan that searches from the <em>end</em> of the output
 <dd><p>Execute a hook script with a JSON task list, return per-task results.</p>
 <p>Writes tasks to a temporary JSON file, launches the script via
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">_base_command()</span></code> (so the correct environment is used), appends
-<code class="docutils literal notranslate"><span class="pre">common_args</span></code> and <code class="docutils literal notranslate"><span class="pre">--tasks_json</span></code>, then extracts the JSON result
-payload from stdout.</p>
-<section id="id21">
-<h4>Parameters<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h4>
+<code class="docutils literal notranslate"><span class="pre">common_args</span></code>, <code class="docutils literal notranslate"><span class="pre">--job_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">--tasks_json</span></code>, then extracts
+the JSON result payload from stdout.</p>
+<p>Before execution, <code class="xref py py-meth docutils literal notranslate"><span class="pre">_stage_hookkit()</span></code> copies <code class="docutils literal notranslate"><span class="pre">hookkit.py</span></code> into
+the job output directory so hooks can <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">hookkit</span></code>.</p>
+<p>After execution, every sidecar envelope in the results dict passes
+through <code class="xref py py-meth docutils literal notranslate"><span class="pre">_validate_envelope()</span></code> for path-safety, existence, and
+metadata-augmentation checks.</p>
+<section id="id26">
+<h4>Parameters<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>script_path<span class="classifier">str</span></dt><dd><p>Path to the hook script.</p>
 </dd>
@@ -887,8 +1094,8 @@ payload from stdout.</p>
 </dd>
 </dl>
 </section>
-<section id="id22">
-<h4>Returns<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h4>
+<section id="id27">
+<h4>Returns<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p>Mapping <code class="docutils literal notranslate"><span class="pre">{result_name:</span> <span class="pre">value,</span> <span class="pre">...}</span></code>.  Tasks that could not run
 map to <code class="docutils literal notranslate"><span class="pre">None</span></code>.  Returns an empty dict when <code class="docutils literal notranslate"><span class="pre">tasks</span></code> is empty.</p>
@@ -914,9 +1121,10 @@ map to <code class="docutils literal notranslate"><span class="pre">None</span><
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ctx</strong> (<a class="reference internal" href="#ABQflow.core.context.JobContext" title="ABQflow.core.context.JobContext"><em>JobContext</em></a>)</p></li>
-<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>Logger</em></a>)</p></li>
+<li><p><strong>ctx</strong> (<a class="reference internal" href="ABQflow.html#ABQflow.JobContext" title="ABQflow.JobContext"><em>JobContext</em></a>)</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>)</p></li>
 <li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>record_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -933,8 +1141,8 @@ in <code class="docutils literal notranslate"><span class="pre">__post_init__</s
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.spec.</span></span><span class="sig-name descname"><span class="pre">HookSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/spec.html#HookSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.spec.HookSpec" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Description of one extraction/pre-extraction hook script and its tasks.</p>
-<section id="id23">
-<h3>Attributes<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h3>
+<section id="id28">
+<h3>Attributes<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>script_path<span class="classifier">str</span></dt><dd><p>Path to the Python script that processes the hook.</p>
 </dd>
@@ -968,10 +1176,10 @@ in <code class="docutils literal notranslate"><span class="pre">__post_init__</s
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.spec.</span></span><span class="sig-name descname"><span class="pre">PreparationSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/spec.html#PreparationSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.spec.PreparationSpec" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Specification for the preparation phase of a modular workflow.</p>
-<section id="id24">
-<h3>Attributes<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h3>
+<section id="id29">
+<h3>Attributes<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h3>
 <dl class="simple">
-<dt>kind<span class="classifier">str</span></dt><dd><p>Preparation strategy identifier.  Currently <code class="docutils literal notranslate"><span class="pre">'inp_based'</span></code> or
+<dt>kind<span class="classifier">str</span></dt><dd><p>Preparation strategy identifier.  Currently <code class="docutils literal notranslate"><span class="pre">'inp_based'</span></code>, <code class="docutils literal notranslate"><span class="pre">'existing_inp'</span></code>, or
 <code class="docutils literal notranslate"><span class="pre">'model_generation'</span></code>.</p>
 </dd>
 <dt>source_path<span class="classifier">str</span></dt><dd><p>Path to the base INP file (for <code class="docutils literal notranslate"><span class="pre">inp_based</span></code>) or model-generation
@@ -1020,13 +1228,13 @@ placeholder replacements for <code class="docutils literal notranslate"><span cl
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.spec.JobSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.spec.</span></span><span class="sig-name descname"><span class="pre">JobSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow='modular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monolithic_script=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monolithic_params=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_extraction=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_extraction=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/spec.html#JobSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.spec.JobSpec" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.spec.</span></span><span class="sig-name descname"><span class="pre">JobSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow='modular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monolithic_script=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monolithic_params=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_extraction=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_extraction=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/spec.html#JobSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.spec.JobSpec" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Single-job configuration validated at construction time.</p>
 <p>Fails fast — validation runs in <code class="docutils literal notranslate"><span class="pre">__post_init__</span></code> so invalid configs are
 rejected before any Abaqus process is launched.</p>
-<section id="id25">
-<h3>Attributes<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h3>
+<section id="id30">
+<h3>Attributes<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>job_name<span class="classifier">str</span></dt><dd><p>Unique name for this job (also used as the working directory name).</p>
 </dd>
@@ -1035,6 +1243,11 @@ rejected before any Abaqus process is launched.</p>
 </dd>
 <dt>preparation<span class="classifier">PreparationSpec or None</span></dt><dd><p>Preparation spec; required when <code class="docutils literal notranslate"><span class="pre">workflow='modular'</span></code>, ignored for
 monolithic.</p>
+</dd>
+<dt>preflight<span class="classifier">str, default=None</span></dt><dd><p>Preflight mode for modular workflows.
+- None: No preflight checks (default)
+- ‘syntaxcheck’: Run abaqus syntax check
+- ‘datacheck’: Run abaqus datacheck</p>
 </dd>
 <dt>monolithic_script<span class="classifier">str or None</span></dt><dd><p>Path to the monolithic script; required when
 <code class="docutils literal notranslate"><span class="pre">workflow='monolithic'</span></code>.</p>
@@ -1061,6 +1274,11 @@ monolithic.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ABQflow.core.spec.JobSpec.preparation">
 <span class="sig-name descname"><span class="pre">preparation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ABQflow.core.spec.PreparationSpec" title="ABQflow.core.spec.PreparationSpec"><span class="pre">PreparationSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ABQflow.core.spec.JobSpec.preparation" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.spec.JobSpec.preflight">
+<span class="sig-name descname"><span class="pre">preflight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ABQflow.core.spec.JobSpec.preflight" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1094,8 +1312,8 @@ monolithic.</p>
 <dd><p>Migration bridge: construct a <a class="reference internal" href="#ABQflow.core.spec.JobSpec" title="ABQflow.core.spec.JobSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobSpec</span></code></a> from a legacy dict.</p>
 <p>Deep-copies the input dict so the returned spec owns all of its
 mutable data (no shared references with the caller).</p>
-<section id="id26">
-<h4>Parameters<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h4>
+<section id="id31">
+<h4>Parameters<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>d<span class="classifier">dict</span></dt><dd><p>Legacy configuration dict.  Recognised keys:
 <code class="docutils literal notranslate"><span class="pre">job_name</span></code>, <code class="docutils literal notranslate"><span class="pre">workflow</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">base_inp_path</span></code>,
@@ -1104,8 +1322,8 @@ mutable data (no shared references with the caller).</p>
 </dd>
 </dl>
 </section>
-<section id="id27">
-<h4>Returns<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h4>
+<section id="id32">
+<h4>Returns<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>JobSpec</dt><dd><p>Fully validated spec.</p>
 </dd>
@@ -1128,6 +1346,7 @@ mutable data (no shared references with the caller).</p>
 <li><p><strong>job_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>workflow</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 <li><p><strong>preparation</strong> (<a class="reference internal" href="#ABQflow.core.spec.PreparationSpec" title="ABQflow.core.spec.PreparationSpec"><em>PreparationSpec</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>preflight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
 <li><p><strong>monolithic_script</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
 <li><p><strong>monolithic_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
 <li><p><strong>pre_extraction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="#ABQflow.core.spec.HookSpec" title="ABQflow.core.spec.HookSpec"><em>HookSpec</em></a><em>]</em>)</p></li>
@@ -1202,6 +1421,11 @@ monolithic script.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="ABQflow.core.status.JobStatus.PREFLIGHT_FAILED">
+<span class="sig-name descname"><span class="pre">PREFLIGHT_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PREFLIGHT_FAILED'</span></em><a class="headerlink" href="#ABQflow.core.status.JobStatus.PREFLIGHT_FAILED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="ABQflow.core.status.JobStatus.SIMULATING">
 <span class="sig-name descname"><span class="pre">SIMULATING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SIMULATING'</span></em><a class="headerlink" href="#ABQflow.core.status.JobStatus.SIMULATING" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1269,8 +1493,8 @@ monolithic script.</p>
 <a class="reference internal" href="#ABQflow.core.status.JobStatusManager.record_extraction" title="ABQflow.core.status.JobStatusManager.record_extraction"><code class="xref py py-meth docutils literal notranslate"><span class="pre">record_extraction()</span></code></a> advances the state.  Once a terminal failure
 state is reached, all subsequent transitions are silently ignored — the
 first failure is the one that is kept.</p>
-<section id="id28">
-<h3>Attributes<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h3>
+<section id="id33">
+<h3>Attributes<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>error_message<span class="classifier">str or None</span></dt><dd><p>Error message from the first terminal failure, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
@@ -1285,10 +1509,33 @@ first failure is the one that is kept.</p>
 <dt class="sig sig-object py" id="ABQflow.core.status.JobStatusManager.record_preparation">
 <span class="sig-name descname"><span class="pre">record_preparation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/status.html#JobStatusManager.record_preparation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.status.JobStatusManager.record_preparation" title="Link to this definition">¶</a></dt>
 <dd><p>Record the outcome of the preparation phase.</p>
-<section id="id29">
-<h4>Parameters<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h4>
+<section id="id34">
+<h4>Parameters<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>success<span class="classifier">bool</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the INP was produced successfully.</p>
+</dd>
+<dt>error<span class="classifier">str or None</span></dt><dd><p>Error message on failure; a default is used if omitted.</p>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>success</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ABQflow.core.status.JobStatusManager.record_preflight">
+<span class="sig-name descname"><span class="pre">record_preflight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/status.html#JobStatusManager.record_preflight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.status.JobStatusManager.record_preflight" title="Link to this definition">¶</a></dt>
+<dd><p>Record the outcome of the preflight phase (IMP-04).</p>
+<section id="id35">
+<h4>Parameters<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h4>
+<dl class="simple">
+<dt>success<span class="classifier">bool</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if syntax/datacheck passed.</p>
 </dd>
 <dt>error<span class="classifier">str or None</span></dt><dd><p>Error message on failure; a default is used if omitted.</p>
 </dd>
@@ -1308,8 +1555,8 @@ first failure is the one that is kept.</p>
 <dt class="sig sig-object py" id="ABQflow.core.status.JobStatusManager.record_simulation">
 <span class="sig-name descname"><span class="pre">record_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/status.html#JobStatusManager.record_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.status.JobStatusManager.record_simulation" title="Link to this definition">¶</a></dt>
 <dd><p>Record the outcome of the Abaqus solver run.</p>
-<section id="id30">
-<h4>Parameters<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h4>
+<section id="id36">
+<h4>Parameters<a class="headerlink" href="#id36" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>success<span class="classifier">bool</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the solver exited with code 0.</p>
 </dd>
@@ -1331,8 +1578,8 @@ first failure is the one that is kept.</p>
 <dt class="sig sig-object py" id="ABQflow.core.status.JobStatusManager.record_extraction">
 <span class="sig-name descname"><span class="pre">record_extraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/status.html#JobStatusManager.record_extraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.status.JobStatusManager.record_extraction" title="Link to this definition">¶</a></dt>
 <dd><p>Record extraction results; fails if any task returned <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-<section id="id31">
-<h4>Parameters<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h4>
+<section id="id37">
+<h4>Parameters<a class="headerlink" href="#id37" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>results<span class="classifier">dict</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">{result_name:</span> <span class="pre">value}</span></code> mapping.  Any <code class="docutils literal notranslate"><span class="pre">None</span></code> value triggers
 <code class="docutils literal notranslate"><span class="pre">EXTRACTION_FAILED</span></code>.</p>
@@ -1350,8 +1597,8 @@ first failure is the one that is kept.</p>
 <dt class="sig sig-object py" id="ABQflow.core.status.JobStatusManager.get_final_status">
 <span class="sig-name descname"><span class="pre">get_final_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/status.html#JobStatusManager.get_final_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.status.JobStatusManager.get_final_status" title="Link to this definition">¶</a></dt>
 <dd><p>Return the current state or <code class="docutils literal notranslate"><span class="pre">COMPLETED</span></code> if no failure was recorded.</p>
-<section id="id32">
-<h4>Returns<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h4>
+<section id="id38">
+<h4>Returns<a class="headerlink" href="#id38" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>JobStatus</dt><dd><p>The terminal failure state if one was reached, otherwise
 <code class="docutils literal notranslate"><span class="pre">JobStatus.COMPLETED</span></code>.</p>
@@ -1392,8 +1639,8 @@ three injected arguments at call time: <code class="xref py py-class docutils li
 <dt class="sig sig-object py" id="ABQflow.core.strategies.PreparationStrategy.prepare">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#PreparationStrategy.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.PreparationStrategy.prepare" title="Link to this definition">¶</a></dt>
 <dd><p>Produce the INP file.</p>
-<section id="id33">
-<h4>Parameters<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h4>
+<section id="id39">
+<h4>Parameters<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing <code class="docutils literal notranslate"><span class="pre">inp_path</span></code> and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
 </dd>
@@ -1403,8 +1650,8 @@ three injected arguments at call time: <code class="xref py py-class docutils li
 </dd>
 </dl>
 </section>
-<section id="id34">
-<h4>Returns<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h4>
+<section id="id40">
+<h4>Returns<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the INP was produced, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
@@ -1435,8 +1682,8 @@ three injected arguments at call time: <code class="xref py py-class docutils li
 <p>Performs coverage validation: if the INP references a placeholder that
 is missing from <em>data_params</em>, preparation fails.  If <em>data_params</em>
 contains keys that are not used in the INP, a warning is emitted.</p>
-<section id="id35">
-<h3>Attributes<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h3>
+<section id="id41">
+<h3>Attributes<a class="headerlink" href="#id41" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>base_inp_path<span class="classifier">str</span></dt><dd><p>Path to the template INP file containing <code class="docutils literal notranslate"><span class="pre">{{key}}</span></code> placeholders.</p>
 </dd>
@@ -1447,8 +1694,8 @@ contains keys that are not used in the INP, a warning is emitted.</p>
 <dt class="sig sig-object py" id="ABQflow.core.strategies.InpModifyStrategy.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#InpModifyStrategy.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.InpModifyStrategy.prepare" title="Link to this definition">¶</a></dt>
 <dd><p>Produce the INP file.</p>
-<section id="id36">
-<h4>Parameters<a class="headerlink" href="#id36" title="Link to this heading">¶</a></h4>
+<section id="id42">
+<h4>Parameters<a class="headerlink" href="#id42" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing <code class="docutils literal notranslate"><span class="pre">inp_path</span></code> and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
 </dd>
@@ -1458,8 +1705,8 @@ contains keys that are not used in the INP, a warning is emitted.</p>
 </dd>
 </dl>
 </section>
-<section id="id37">
-<h4>Returns<a class="headerlink" href="#id37" title="Link to this heading">¶</a></h4>
+<section id="id43">
+<h4>Returns<a class="headerlink" href="#id43" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the INP was produced, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
@@ -1498,8 +1745,8 @@ contains keys that are not used in the INP, a warning is emitted.</p>
 <p>The script is launched via <code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">cae</span> <span class="pre">noGUI=&lt;script&gt;</span></code> and is expected
 to produce an INP file at <code class="docutils literal notranslate"><span class="pre">ctx.inp_path</span></code>.  Common arguments
 (<code class="docutils literal notranslate"><span class="pre">--job_name</span></code>, user params) are forwarded as CLI flags.</p>
-<section id="id38">
-<h3>Attributes<a class="headerlink" href="#id38" title="Link to this heading">¶</a></h3>
+<section id="id44">
+<h3>Attributes<a class="headerlink" href="#id44" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>model_script_path<span class="classifier">str</span></dt><dd><p>Path to the model-generation script.</p>
 </dd>
@@ -1510,8 +1757,8 @@ to produce an INP file at <code class="docutils literal notranslate"><span class
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ModelGenerationStrategy.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ModelGenerationStrategy.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ModelGenerationStrategy.prepare" title="Link to this definition">¶</a></dt>
 <dd><p>Produce the INP file.</p>
-<section id="id39">
-<h4>Parameters<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h4>
+<section id="id45">
+<h4>Parameters<a class="headerlink" href="#id45" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing <code class="docutils literal notranslate"><span class="pre">inp_path</span></code> and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
 </dd>
@@ -1521,8 +1768,8 @@ to produce an INP file at <code class="docutils literal notranslate"><span class
 </dd>
 </dl>
 </section>
-<section id="id40">
-<h4>Returns<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h4>
+<section id="id46">
+<h4>Returns<a class="headerlink" href="#id46" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the INP was produced, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
@@ -1571,8 +1818,8 @@ placeholders, steering the user toward <code class="docutils literal notranslate
 <li><p><strong>STEP presence check</strong>: confirms the file contains at least one
 <code class="docutils literal notranslate"><span class="pre">*STEP</span></code> keyword.</p></li>
 </ul>
-<section id="id41">
-<h3>Attributes<a class="headerlink" href="#id41" title="Link to this heading">¶</a></h3>
+<section id="id47">
+<h3>Attributes<a class="headerlink" href="#id47" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>source_inp_path<span class="classifier">str</span></dt><dd><p>Absolute or relative path to the existing INP file.</p>
 </dd>
@@ -1586,8 +1833,8 @@ absolute paths resolved against the source INP’s directory.</p>
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ExistingInpStrategy.prepare">
 <span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ExistingInpStrategy.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ExistingInpStrategy.prepare" title="Link to this definition">¶</a></dt>
 <dd><p>Produce the INP file.</p>
-<section id="id42">
-<h4>Parameters<a class="headerlink" href="#id42" title="Link to this heading">¶</a></h4>
+<section id="id48">
+<h4>Parameters<a class="headerlink" href="#id48" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing <code class="docutils literal notranslate"><span class="pre">inp_path</span></code> and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
 </dd>
@@ -1597,8 +1844,8 @@ absolute paths resolved against the source INP’s directory.</p>
 </dd>
 </dl>
 </section>
-<section id="id43">
-<h4>Returns<a class="headerlink" href="#id43" title="Link to this heading">¶</a></h4>
+<section id="id49">
+<h4>Returns<a class="headerlink" href="#id49" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the INP was produced, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
@@ -1635,8 +1882,8 @@ absolute paths resolved against the source INP’s directory.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.strategies.</span></span><span class="sig-name descname"><span class="pre">ExtractionStrategy</span></span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ExtractionStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ExtractionStrategy" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Interface for extraction: read results from model or ODB files.</p>
-<section id="id44">
-<h3>Subclasses<a class="headerlink" href="#id44" title="Link to this heading">¶</a></h3>
+<section id="id50">
+<h3>Subclasses<a class="headerlink" href="#id50" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>OdbExtractionStrategy</dt><dd><p>Post-simulation extraction from ODB (requires <code class="docutils literal notranslate"><span class="pre">odbAccess</span></code>).</p>
 </dd>
@@ -1647,8 +1894,8 @@ absolute paths resolved against the source INP’s directory.</p>
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ExtractionStrategy.extract">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ExtractionStrategy.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ExtractionStrategy.extract" title="Link to this definition">¶</a></dt>
 <dd><p>Extract results.</p>
-<section id="id45">
-<h4>Parameters<a class="headerlink" href="#id45" title="Link to this heading">¶</a></h4>
+<section id="id51">
+<h4>Parameters<a class="headerlink" href="#id51" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing file paths.</p>
 </dd>
@@ -1658,8 +1905,8 @@ absolute paths resolved against the source INP’s directory.</p>
 </dd>
 </dl>
 </section>
-<section id="id46">
-<h4>Returns<a class="headerlink" href="#id46" title="Link to this heading">¶</a></h4>
+<section id="id52">
+<h4>Returns<a class="headerlink" href="#id52" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{result_name:</span> <span class="pre">value,</span> <span class="pre">...}</span></code>.  Failed tasks map to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
@@ -1690,8 +1937,8 @@ absolute paths resolved against the source INP’s directory.</p>
 <p>Runs in the <code class="docutils literal notranslate"><span class="pre">odbAccess</span></code> environment (<code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">python</span></code>), NOT the CAE
 kernel.  Each hook script receives <code class="docutils literal notranslate"><span class="pre">--odb_path</span></code> as a common argument
 and a JSON task list via <code class="docutils literal notranslate"><span class="pre">--tasks_json</span></code>.</p>
-<section id="id47">
-<h3>Attributes<a class="headerlink" href="#id47" title="Link to this heading">¶</a></h3>
+<section id="id53">
+<h3>Attributes<a class="headerlink" href="#id53" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>hooks<span class="classifier">list[dict]</span></dt><dd><p>List of hook descriptors, each with <code class="docutils literal notranslate"><span class="pre">script_path</span></code> and <code class="docutils literal notranslate"><span class="pre">tasks</span></code>.</p>
 </dd>
@@ -1700,8 +1947,8 @@ and a JSON task list via <code class="docutils literal notranslate"><span class=
 <dt class="sig sig-object py" id="ABQflow.core.strategies.OdbExtractionStrategy.extract">
 <span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#OdbExtractionStrategy.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.OdbExtractionStrategy.extract" title="Link to this definition">¶</a></dt>
 <dd><p>Extract results.</p>
-<section id="id48">
-<h4>Parameters<a class="headerlink" href="#id48" title="Link to this heading">¶</a></h4>
+<section id="id54">
+<h4>Parameters<a class="headerlink" href="#id54" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing file paths.</p>
 </dd>
@@ -1711,8 +1958,8 @@ and a JSON task list via <code class="docutils literal notranslate"><span class=
 </dd>
 </dl>
 </section>
-<section id="id49">
-<h4>Returns<a class="headerlink" href="#id49" title="Link to this heading">¶</a></h4>
+<section id="id55">
+<h4>Returns<a class="headerlink" href="#id55" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{result_name:</span> <span class="pre">value,</span> <span class="pre">...}</span></code>.  Failed tasks map to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
@@ -1748,8 +1995,8 @@ and a JSON task list via <code class="docutils literal notranslate"><span class=
 <p>Runs in the CAE kernel environment (<code class="docutils literal notranslate"><span class="pre">abaqus</span> <span class="pre">cae</span> <span class="pre">noGUI</span></code>) because it
 needs <code class="docutils literal notranslate"><span class="pre">mdb</span></code> access.  Each hook script receives <code class="docutils literal notranslate"><span class="pre">--inp_path</span></code> as a
 common argument and a JSON task list via <code class="docutils literal notranslate"><span class="pre">--tasks_json</span></code>.</p>
-<section id="id50">
-<h3>Attributes<a class="headerlink" href="#id50" title="Link to this heading">¶</a></h3>
+<section id="id56">
+<h3>Attributes<a class="headerlink" href="#id56" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>hooks<span class="classifier">list[dict]</span></dt><dd><p>List of hook descriptors, each with <code class="docutils literal notranslate"><span class="pre">script_path</span></code> and <code class="docutils literal notranslate"><span class="pre">tasks</span></code>.</p>
 </dd>
@@ -1758,8 +2005,8 @@ common argument and a JSON task list via <code class="docutils literal notransla
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ModelPropertiesExtractionStrategy.extract">
 <span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ModelPropertiesExtractionStrategy.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ModelPropertiesExtractionStrategy.extract" title="Link to this definition">¶</a></dt>
 <dd><p>Extract results.</p>
-<section id="id51">
-<h4>Parameters<a class="headerlink" href="#id51" title="Link to this heading">¶</a></h4>
+<section id="id57">
+<h4>Parameters<a class="headerlink" href="#id57" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context providing file paths.</p>
 </dd>
@@ -1769,8 +2016,8 @@ common argument and a JSON task list via <code class="docutils literal notransla
 </dd>
 </dl>
 </section>
-<section id="id52">
-<h4>Returns<a class="headerlink" href="#id52" title="Link to this heading">¶</a></h4>
+<section id="id58">
+<h4>Returns<a class="headerlink" href="#id58" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{result_name:</span> <span class="pre">value,</span> <span class="pre">...}</span></code>.  Failed tasks map to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
@@ -1803,8 +2050,8 @@ common argument and a JSON task list via <code class="docutils literal notransla
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.strategies.</span></span><span class="sig-name descname"><span class="pre">JobWorkflowStrategy</span></span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#JobWorkflowStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.JobWorkflowStrategy" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Interface for a complete job workflow.</p>
-<section id="id53">
-<h3>Subclasses<a class="headerlink" href="#id53" title="Link to this heading">¶</a></h3>
+<section id="id59">
+<h3>Subclasses<a class="headerlink" href="#id59" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>MonolithicWorkflowStrategy</dt><dd><p>Single-script workflow that handles everything itself.</p>
 </dd>
@@ -1816,8 +2063,8 @@ post-extraction.</p>
 <dt class="sig sig-object py" id="ABQflow.core.strategies.JobWorkflowStrategy.execute">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#JobWorkflowStrategy.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.JobWorkflowStrategy.execute" title="Link to this definition">¶</a></dt>
 <dd><p>Run the full workflow and return a result dict.</p>
-<section id="id54">
-<h4>Parameters<a class="headerlink" href="#id54" title="Link to this heading">¶</a></h4>
+<section id="id60">
+<h4>Parameters<a class="headerlink" href="#id60" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context.</p>
 </dd>
@@ -1827,8 +2074,8 @@ post-extraction.</p>
 </dd>
 </dl>
 </section>
-<section id="id55">
-<h4>Returns<a class="headerlink" href="#id55" title="Link to this heading">¶</a></h4>
+<section id="id61">
+<h4>Returns<a class="headerlink" href="#id61" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p>Must contain at least a <code class="docutils literal notranslate"><span class="pre">'status'</span></code> key (a <code class="xref py py-class docutils literal notranslate"><span class="pre">JobStatus</span></code>
 or its string value).  May include extracted results.</p>
@@ -1861,8 +2108,8 @@ or its string value).  May include extracted results.</p>
 must print its JSON results wrapped in the sentinel markers
 <code class="docutils literal notranslate"><span class="pre">===ABQ_RESULT_BEGIN===</span></code> / <code class="docutils literal notranslate"><span class="pre">===ABQ_RESULT_END===</span></code>.  The result dict
 is expected to contain at least a <code class="docutils literal notranslate"><span class="pre">'status'</span></code> key.</p>
-<section id="id56">
-<h3>Attributes<a class="headerlink" href="#id56" title="Link to this heading">¶</a></h3>
+<section id="id62">
+<h3>Attributes<a class="headerlink" href="#id62" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>script_path<span class="classifier">str</span></dt><dd><p>Path to the monolithic script.</p>
 </dd>
@@ -1873,8 +2120,8 @@ is expected to contain at least a <code class="docutils literal notranslate"><sp
 <dt class="sig sig-object py" id="ABQflow.core.strategies.MonolithicWorkflowStrategy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#MonolithicWorkflowStrategy.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.MonolithicWorkflowStrategy.execute" title="Link to this definition">¶</a></dt>
 <dd><p>Run the full workflow and return a result dict.</p>
-<section id="id57">
-<h4>Parameters<a class="headerlink" href="#id57" title="Link to this heading">¶</a></h4>
+<section id="id63">
+<h4>Parameters<a class="headerlink" href="#id63" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>ctx<span class="classifier">JobContext</span></dt><dd><p>Job context.</p>
 </dd>
@@ -1884,8 +2131,8 @@ is expected to contain at least a <code class="docutils literal notranslate"><sp
 </dd>
 </dl>
 </section>
-<section id="id58">
-<h4>Returns<a class="headerlink" href="#id58" title="Link to this heading">¶</a></h4>
+<section id="id64">
+<h4>Returns<a class="headerlink" href="#id64" title="Link to this heading">¶</a></h4>
 <dl class="simple">
 <dt>dict</dt><dd><p>Must contain at least a <code class="docutils literal notranslate"><span class="pre">'status'</span></code> key (a <code class="xref py py-class docutils literal notranslate"><span class="pre">JobStatus</span></code>
 or its string value).  May include extracted results.</p>
@@ -1919,16 +2166,18 @@ or its string value).  May include extracted results.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ModularWorkflowStrategy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.strategies.</span></span><span class="sig-name descname"><span class="pre">ModularWorkflowStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preparation_strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_extraction_strategies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_extraction_strategies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ModularWorkflowStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ModularWorkflowStrategy" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ABQflow.core.strategies.</span></span><span class="sig-name descname"><span class="pre">ModularWorkflowStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preparation_strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_extraction_strategies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_extraction_strategies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preflight_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ModularWorkflowStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ModularWorkflowStrategy" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ABQflow.core.strategies.JobWorkflowStrategy" title="ABQflow.core.strategies.JobWorkflowStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobWorkflowStrategy</span></code></a></p>
-<p>4-phase pipeline: preparation, pre-extraction, simulation, post-extraction.</p>
+<p>5-phase pipeline: preparation, [preflight], pre-extraction, simulation, post-extraction.</p>
 <p>Uses a <code class="xref py py-class docutils literal notranslate"><span class="pre">JobStatusManager</span></code> internally to track the job through
 each phase.  If any phase fails the pipeline stops and returns the
 terminal status immediately.</p>
-<section id="id59">
-<h3>Attributes<a class="headerlink" href="#id59" title="Link to this heading">¶</a></h3>
+<section id="id65">
+<h3>Attributes<a class="headerlink" href="#id65" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>preparation_strategy<span class="classifier">PreparationStrategy</span></dt><dd><p>Strategy that produces the INP file.</p>
+</dd>
+<dt>preflight_mode<span class="classifier">str or None</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">'syntaxcheck'</span></code>, <code class="docutils literal notranslate"><span class="pre">'datacheck'</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code> (IMP-04).</p>
 </dd>
 <dt>pre_extraction_strategies<span class="classifier">list[ExtractionStrategy]</span></dt><dd><p>Strategies run before the solver (e.g. property extraction from INP).</p>
 </dd>
@@ -1938,7 +2187,7 @@ terminal status immediately.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ABQflow.core.strategies.ModularWorkflowStrategy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ABQflow/core/strategies.html#ModularWorkflowStrategy.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ABQflow.core.strategies.ModularWorkflowStrategy.execute" title="Link to this definition">¶</a></dt>
-<dd><p>Run the 4-phase modular workflow.</p>
+<dd><p>Run the modular workflow (5 phases with optional preflight).</p>
 <p>Returns a dict with at least a <code class="docutils literal notranslate"><span class="pre">'status'</span></code> key plus any results
 from pre- and post-extraction hooks.  Failing early means later
 phases are skipped.</p>
@@ -1963,6 +2212,8 @@ phases are skipped.</p>
 <li><p><strong>preparation_strategy</strong> (<a class="reference internal" href="#ABQflow.core.strategies.PreparationStrategy" title="ABQflow.core.strategies.PreparationStrategy"><em>PreparationStrategy</em></a>)</p></li>
 <li><p><strong>pre_extraction_strategies</strong> (<em>List</em><em>[</em><a class="reference internal" href="#ABQflow.core.strategies.ExtractionStrategy" title="ABQflow.core.strategies.ExtractionStrategy"><em>ExtractionStrategy</em></a><em>]</em>)</p></li>
 <li><p><strong>post_extraction_strategies</strong> (<em>List</em><em>[</em><a class="reference internal" href="#ABQflow.core.strategies.ExtractionStrategy" title="ABQflow.core.strategies.ExtractionStrategy"><em>ExtractionStrategy</em></a><em>]</em>)</p></li>
+<li><p><strong>preflight_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>preflight_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -2040,6 +2291,13 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-ABQflow.core.abaqus_automation">ABQflow.core.abaqus_automation module</a><ul>
 <li><a class="reference internal" href="#key-classes">Key classes</a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan"><code class="docutils literal notranslate"><span class="pre">JobPlan</span></code></a><ul>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan.job_name"><code class="docutils literal notranslate"><span class="pre">JobPlan.job_name</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan.commands"><code class="docutils literal notranslate"><span class="pre">JobPlan.commands</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan.paths"><code class="docutils literal notranslate"><span class="pre">JobPlan.paths</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobPlan.resource_summary"><code class="docutils literal notranslate"><span class="pre">JobPlan.resource_summary</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.AbaqusCalculation"><code class="docutils literal notranslate"><span class="pre">AbaqusCalculation</span></code></a><ul>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.AbaqusCalculation.execute"><code class="docutils literal notranslate"><span class="pre">AbaqusCalculation.execute()</span></code></a></li>
 </ul>
@@ -2049,12 +2307,14 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobOutcome.status"><code class="docutils literal notranslate"><span class="pre">JobOutcome.status</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobOutcome.results"><code class="docutils literal notranslate"><span class="pre">JobOutcome.results</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobOutcome.error"><code class="docutils literal notranslate"><span class="pre">JobOutcome.error</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.JobOutcome.diagnostics"><code class="docutils literal notranslate"><span class="pre">JobOutcome.diagnostics</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.solver_tokens"><code class="docutils literal notranslate"><span class="pre">solver_tokens()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.plan_parallelism"><code class="docutils literal notranslate"><span class="pre">plan_parallelism()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor</span></code></a><ul>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.__init__"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.dry_run"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.dry_run()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.plan"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.plan()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.prepare"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.prepare()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.abaqus_automation.BatchAbaqusProcessor.run_batch"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.run_batch()</span></code></a></li>
@@ -2071,6 +2331,9 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#ABQflow.core.context.JobContext.inp_path"><code class="docutils literal notranslate"><span class="pre">JobContext.inp_path</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.context.JobContext.odb_path"><code class="docutils literal notranslate"><span class="pre">JobContext.odb_path</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.context.JobContext.log_path"><code class="docutils literal notranslate"><span class="pre">JobContext.log_path</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.context.JobContext.sta_path"><code class="docutils literal notranslate"><span class="pre">JobContext.sta_path</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.context.JobContext.msg_path"><code class="docutils literal notranslate"><span class="pre">JobContext.msg_path</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.context.JobContext.dat_path"><code class="docutils literal notranslate"><span class="pre">JobContext.dat_path</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2081,9 +2344,16 @@ phases are skipped.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-ABQflow.core.runner">ABQflow.core.runner module</a><ul>
+<li><a class="reference internal" href="#ABQflow.core.runner.CommandRecord"><code class="docutils literal notranslate"><span class="pre">CommandRecord</span></code></a><ul>
+<li><a class="reference internal" href="#ABQflow.core.runner.CommandRecord.stage"><code class="docutils literal notranslate"><span class="pre">CommandRecord.stage</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.runner.CommandRecord.cmd"><code class="docutils literal notranslate"><span class="pre">CommandRecord.cmd</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.runner.CommandRecord.cwd"><code class="docutils literal notranslate"><span class="pre">CommandRecord.cwd</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#ABQflow.core.runner.extract_json"><code class="docutils literal notranslate"><span class="pre">extract_json()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.runner.AbaqusRunner"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner</span></code></a><ul>
 <li><a class="reference internal" href="#ABQflow.core.runner.AbaqusRunner.run_solver"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_solver()</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.runner.AbaqusRunner.run_preflight"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_preflight()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.runner.AbaqusRunner.run_hook"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_hook()</span></code></a></li>
 </ul>
 </li>
@@ -2106,6 +2376,7 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.job_name"><code class="docutils literal notranslate"><span class="pre">JobSpec.job_name</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.workflow"><code class="docutils literal notranslate"><span class="pre">JobSpec.workflow</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.preparation"><code class="docutils literal notranslate"><span class="pre">JobSpec.preparation</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.preflight"><code class="docutils literal notranslate"><span class="pre">JobSpec.preflight</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.monolithic_script"><code class="docutils literal notranslate"><span class="pre">JobSpec.monolithic_script</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.monolithic_params"><code class="docutils literal notranslate"><span class="pre">JobSpec.monolithic_params</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.spec.JobSpec.pre_extraction"><code class="docutils literal notranslate"><span class="pre">JobSpec.pre_extraction</span></code></a></li>
@@ -2123,6 +2394,7 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.PREPARING"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARING</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.PREPARATION_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARATION_FAILED</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.PREPARATION_SUCCESS"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARATION_SUCCESS</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.status.JobStatus.PREFLIGHT_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREFLIGHT_FAILED</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.SIMULATING"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATING</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.SIMULATION_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATION_FAILED</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatus.SIMULATION_SUCCESS"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATION_SUCCESS</span></code></a></li>
@@ -2139,6 +2411,7 @@ phases are skipped.</p>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager"><code class="docutils literal notranslate"><span class="pre">JobStatusManager</span></code></a><ul>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.error_message"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.error_message</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.record_preparation"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_preparation()</span></code></a></li>
+<li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.record_preflight"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_preflight()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.record_simulation"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_simulation()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.record_extraction"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_extraction()</span></code></a></li>
 <li><a class="reference internal" href="#ABQflow.core.status.JobStatusManager.get_final_status"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.get_final_status()</span></code></a></li>
@@ -2201,7 +2474,7 @@ phases are skipped.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e4caa2eb"></script>
+</div><script src="../_static/documentation_options.js?v=8ee541af"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

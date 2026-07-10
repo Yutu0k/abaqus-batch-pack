@@ -123,4 +123,24 @@ __all__ = [
 	"RESULT_END",
 ]
 
-__version__ = "0.3.0"
+def _get_version() -> str:
+	"""Read the package version from pyproject.toml (single source of truth)."""
+	# 1. Prefer importlib.metadata (works when package is installed)
+	try:
+		from importlib.metadata import version as _meta_version
+		return _meta_version("ABQflow")
+	except Exception:
+		pass
+	# 2. Fallback: parse pyproject.toml directly (works in dev / editable installs)
+	try:
+		from pathlib import Path
+		import toml
+		_pyproject = Path(__file__).parents[2] / "pyproject.toml"
+		if _pyproject.exists():
+			return toml.load(_pyproject)["project"]["version"]
+	except Exception:
+		pass
+	# 3. Last resort
+	return "0.0.0"
+
+__version__ = _get_version()

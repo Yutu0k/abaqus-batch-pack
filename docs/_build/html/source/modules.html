@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ABQflow package" href="ABQflow.html" /><link rel="prev" title="Architecture" href="architecture.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ABQflow - ABQflow 0.3.0 documentation</title>
+        <title>ABQflow - ABQflow 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">ABQflow 0.3.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">ABQflow 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">ABQflow 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">ABQflow 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -289,6 +289,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor.__init__"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor.dry_run"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.dry_run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor.plan"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.plan()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor.prepare"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.prepare()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.BatchAbaqusProcessor.run_batch"><code class="docutils literal notranslate"><span class="pre">BatchAbaqusProcessor.run_batch()</span></code></a></li>
@@ -299,6 +300,14 @@
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobOutcome.status"><code class="docutils literal notranslate"><span class="pre">JobOutcome.status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobOutcome.results"><code class="docutils literal notranslate"><span class="pre">JobOutcome.results</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobOutcome.error"><code class="docutils literal notranslate"><span class="pre">JobOutcome.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobOutcome.diagnostics"><code class="docutils literal notranslate"><span class="pre">JobOutcome.diagnostics</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.JobPlan"><code class="docutils literal notranslate"><span class="pre">JobPlan</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobPlan.job_name"><code class="docutils literal notranslate"><span class="pre">JobPlan.job_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobPlan.commands"><code class="docutils literal notranslate"><span class="pre">JobPlan.commands</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobPlan.paths"><code class="docutils literal notranslate"><span class="pre">JobPlan.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobPlan.resource_summary"><code class="docutils literal notranslate"><span class="pre">JobPlan.resource_summary</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext"><code class="docutils literal notranslate"><span class="pre">JobContext</span></code></a><ul>
@@ -309,11 +318,21 @@
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.inp_path"><code class="docutils literal notranslate"><span class="pre">JobContext.inp_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.odb_path"><code class="docutils literal notranslate"><span class="pre">JobContext.odb_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.log_path"><code class="docutils literal notranslate"><span class="pre">JobContext.log_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.sta_path"><code class="docutils literal notranslate"><span class="pre">JobContext.sta_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.msg_path"><code class="docutils literal notranslate"><span class="pre">JobContext.msg_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobContext.dat_path"><code class="docutils literal notranslate"><span class="pre">JobContext.dat_path</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.AbaqusRunner"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.AbaqusRunner.run_solver"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_solver()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.AbaqusRunner.run_preflight"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_preflight()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.AbaqusRunner.run_hook"><code class="docutils literal notranslate"><span class="pre">AbaqusRunner.run_hook()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.CommandRecord"><code class="docutils literal notranslate"><span class="pre">CommandRecord</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.CommandRecord.stage"><code class="docutils literal notranslate"><span class="pre">CommandRecord.stage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.CommandRecord.cmd"><code class="docutils literal notranslate"><span class="pre">CommandRecord.cmd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.CommandRecord.cwd"><code class="docutils literal notranslate"><span class="pre">CommandRecord.cwd</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.extract_json"><code class="docutils literal notranslate"><span class="pre">extract_json()</span></code></a></li>
@@ -321,6 +340,7 @@
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.job_name"><code class="docutils literal notranslate"><span class="pre">JobSpec.job_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.workflow"><code class="docutils literal notranslate"><span class="pre">JobSpec.workflow</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.preparation"><code class="docutils literal notranslate"><span class="pre">JobSpec.preparation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.preflight"><code class="docutils literal notranslate"><span class="pre">JobSpec.preflight</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.monolithic_script"><code class="docutils literal notranslate"><span class="pre">JobSpec.monolithic_script</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.monolithic_params"><code class="docutils literal notranslate"><span class="pre">JobSpec.monolithic_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobSpec.pre_extraction"><code class="docutils literal notranslate"><span class="pre">JobSpec.pre_extraction</span></code></a></li>
@@ -349,6 +369,7 @@
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.PREPARING"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARING</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.PREPARATION_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARATION_FAILED</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.PREPARATION_SUCCESS"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREPARATION_SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.PREFLIGHT_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.PREFLIGHT_FAILED</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.SIMULATING"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATING</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.SIMULATION_FAILED"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATION_FAILED</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatus.SIMULATION_SUCCESS"><code class="docutils literal notranslate"><span class="pre">JobStatus.SIMULATION_SUCCESS</span></code></a></li>
@@ -365,6 +386,7 @@
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager"><code class="docutils literal notranslate"><span class="pre">JobStatusManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.error_message"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.error_message</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.record_preparation"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_preparation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.record_preflight"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_preflight()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.record_simulation"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_simulation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.record_extraction"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.record_extraction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.JobStatusManager.get_final_status"><code class="docutils literal notranslate"><span class="pre">JobStatusManager.get_final_status()</span></code></a></li>
@@ -410,14 +432,36 @@
 <li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.ModularWorkflowStrategy.execute"><code class="docutils literal notranslate"><span class="pre">ModularWorkflowStrategy.execute()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.sta_verdict"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.sta_verdict</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.errors"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.error_total"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.error_total</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.warning_total"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.warning_total</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.increments"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.increments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.source_files"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.source_files</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverDiagnostics.solver_type"><code class="docutils literal notranslate"><span class="pre">SolverDiagnostics.solver_type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.SolverResult"><code class="docutils literal notranslate"><span class="pre">SolverResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverResult.success"><code class="docutils literal notranslate"><span class="pre">SolverResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverResult.error"><code class="docutils literal notranslate"><span class="pre">SolverResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ABQflow.html#ABQflow.SolverResult.diagnostics"><code class="docutils literal notranslate"><span class="pre">SolverResult.diagnostics</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.diagnose"><code class="docutils literal notranslate"><span class="pre">diagnose()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.harvest_errors"><code class="docutils literal notranslate"><span class="pre">harvest_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.parse_sta"><code class="docutils literal notranslate"><span class="pre">parse_sta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.apply_truth_table"><code class="docutils literal notranslate"><span class="pre">apply_truth_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.plan_parallelism"><code class="docutils literal notranslate"><span class="pre">plan_parallelism()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.solver_tokens"><code class="docutils literal notranslate"><span class="pre">solver_tokens()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.generate_from_array"><code class="docutils literal notranslate"><span class="pre">generate_from_array()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.generate_from_inp_files"><code class="docutils literal notranslate"><span class="pre">generate_from_inp_files()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.sanitize_job_name"><code class="docutils literal notranslate"><span class="pre">sanitize_job_name()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.degenerate_from_array"><code class="docutils literal notranslate"><span class="pre">degenerate_from_array()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.outcomes_to_list"><code class="docutils literal notranslate"><span class="pre">outcomes_to_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.outcomes_to_dict"><code class="docutils literal notranslate"><span class="pre">outcomes_to_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.plan_parallelism"><code class="docutils literal notranslate"><span class="pre">plan_parallelism()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.solver_tokens"><code class="docutils literal notranslate"><span class="pre">solver_tokens()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.is_sidecar"><code class="docutils literal notranslate"><span class="pre">is_sidecar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ABQflow.html#ABQflow.resolve_sidecar"><code class="docutils literal notranslate"><span class="pre">resolve_sidecar()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -482,7 +526,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e4caa2eb"></script>
+</div><script src="../_static/documentation_options.js?v=8ee541af"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

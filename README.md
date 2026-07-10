@@ -5,7 +5,8 @@
 **Modular batch-processing framework for [Abaqus FEA](https://www.3ds.com/products/simulia/abaqus) based on [python](https://www.python.org/).**
 Typed job specs, strategy-pattern workflows, fault-tolerant parallel execution, resource-aware scheduling — no more hand-crafted launch scripts.
 
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  ![Version](https://img.shields.io/badge/version-v0.3.0-green.svg?style=flat-square) ![python](https://img.shields.io/badge/python-3.9+-blue.svg)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  ![Version](https://img.shields.io/badge/version-v0.4.0-green.svg?style=flat-square) ![python](https://img.shields.io/badge/python-3.9+-blue.svg)
+<!-- ↑ version badge: update on release (single source: pyproject.toml) -->
 
 English | [简体中文](../README.zh-CN.md) 
 
@@ -62,11 +63,11 @@ pixi add --pypi "ABQflow @ git+https://github.com/Yutu0k/ABQflow.git"
 from ABQflow import BatchAbaqusProcessor, JobSpec, PreparationSpec, HookSpec
 
 spec = JobSpec(
-    job_name = "planar_stress",
+    job_name = "planar_stress_odb",
     workflow = "modular",
     preparation = PreparationSpec(
         kind = "inp_based",
-        source_path = "./examples/SingleParameterizedJob/cae_file/planar_stress_template.inp",
+        source_path = "./examples/cae_file/planar_stress_template.inp",
         params = {
             "youngs_modulus": 210000,
             "load_magnitude": 2000,
@@ -74,7 +75,7 @@ spec = JobSpec(
     ),
     post_extraction = [
         HookSpec(
-            script_path = "./examples/SingleParameterizedJob/cae_file/get_max_stress_mises.py",
+            script_path = "./examples/extraction_scripts/get_max_stress_mises.py",
             tasks = [
                 {"result_name": "max_stress_mises",},
                 {"result_name": "max_displacement",},
@@ -83,11 +84,12 @@ spec = JobSpec(
     ]
 )
 
-processor = BatchAbaqusProcessor(
+processor_odb = BatchAbaqusProcessor(
     batch_data = [spec],
-    base_output_dir = ("./examples/SingleParameterizedJob/output"),
+    base_output_dir = os.path.join(CWD, "examples/01_SingleParameterizedJob/output"),
     cpus_per_job = 4,
     duplicate_mode = "overwrite",
+    abaqus_exe = ABAQUS_CAE,
 )
 outcomes = processor.run_batch(num_parallel_jobs=1)
 
@@ -104,22 +106,22 @@ from ABQflow import generate_from_array, degenerate_from_array
 
 param_names = ['youngs_modulus', 'load_magnitude']
 param_values = np.array([
-	[200000, 2000],
-	[210000, 3000],
-	[220000, 4000],
-	[230000, 5000]
+    [200000, 2000],
+    [210000, 3000],
+    [220000, 4000],
+    [230000, 5000]
 ])
 
 base_job_spec = JobSpec(
-    job_name = "planar_stress_batch",
+    job_name = "planar_stress_multiple",
     workflow = "modular",
     preparation = PreparationSpec(
         kind = "inp_based",
-        source_path = "./examples/BatchParameterizedJob/cae_file/planar_stress_template.inp",
+        source_path = "./examples/cae_file/planar_stress_template.inp",
     ),
     pre_extraction = [
         HookSpec(
-            script_path = "./examples/BatchParameterizedJob/cae_file/get_total_mass.py",
+            script_path = "./examples/extraction_scripts/get_total_mass.py",
             tasks = [
                 {"result_name": "total_mass",},
             ]
@@ -127,7 +129,7 @@ base_job_spec = JobSpec(
     ],
     post_extraction = [
         HookSpec(
-            script_path = "./examples/BatchParameterizedJob/cae_file/get_max_stress_mises.py",
+            script_path = "./examples/extraction_scripts/get_max_stress_mises.py",
             tasks = [
                 {"result_name": "max_stress_mises",},
                 {"result_name": "max_displacement",},
@@ -142,7 +144,13 @@ spec_list = generate_from_array(
     base_spec  = base_job_spec
 )
 
-proc = BatchAbaqusProcessor(specs, './output', cpus_per_job=4)
+processor = BatchAbaqusProcessor(
+    batch_data = spec_list,
+    base_output_dir = os.path.join(CWD, "examples/02_BatchParameterizedJob/output"),
+    cpus_per_job = 12,
+    duplicate_mode = "overwrite",
+    abaqus_exe = ABAQUS_CAE,
+)
 outcomes = proc.run_batch(num_parallel_jobs=2)
 
 # Get a 2D numpy array of results
@@ -169,52 +177,115 @@ TODO
 
 ## Hook Scripts
 
-Extraction hook should follow the retionales below:
+Extraction hooks run under the **Abaqus Python interpreter** (`abaqus python` or `abaqus cae noGUI`). ABQflow provides **hookkit** — a single-file, stdlib-only harness that eliminates all boilerplate. You write only the physics.
 
-- Remember scripts are handed to `abaqus python interpreter`. Make sure no packages other than Python's built-in packages are imported.
-- The exported results should use `sys.__stderr__.write()` and include header `===ABQ_RESULT_BEGIN===` and footer `===ABQ_RESULT_END===`
-- Any fail can be manually tested with:
+### Quick start (ODB)
 
-    ```bash
-    python extraction_script.py --result_path path_to_result --tasks_json path_to_json_for_job
-    ```
-
-### Quick Example
 ```python
 # my_extract.py
-import argparse, sys, json
-from odbAccess import openOdb
+import os, sys
+sys.path.insert(0, os.getcwd())     # hookkit is staged here by ABQflow
+import hookkit
 
-def extract_from_odb(args):
-    try:
-        with open(tasks_json_path, 'r', encoding='utf-8') as f: 
-            task_list = json.load(f)
+def extract_one(odb_path, task):
+    """Physics in, value out. Raise on failure."""
+    from odbAccess import openOdb
+    name = task['result_name']
 
-        odb = openOdb(args.odb_path)
-        results = {}
+    with hookkit.opened(openOdb(path=odb_path, readOnly=True)) as odb:
+        step = odb.steps[task.get('step', list(odb.steps.keys())[-1])]
+        frame = step.frames[-1]
+        asm = odb.rootAssembly
 
-        for task in task_list:
-            name = task['result_name']
-            try:
-                results[name] = 123.45  # your extraction logic
-            except Exception:
-                results[name] = None
-        
-        odb.close()
-        sys.__stdout__.write(f"===ABQ_RESULT_BEGIN===\n{json.dumps(results)}\n===ABQ_RESULT_END===\n")
-    
-    except Exception as e:
-        sys.__stderr__.write(f"Fatal error in my_extract.py: {e}\n")
-        sys.exit(1)
+        if name == 'max_stress_mises':
+            vals = frame.fieldOutputs['S'].getSubset(
+                region=asm.elementSets[' ALL ELEMENTS']).values
+            return hookkit.scalar(max(v.mises for v in vals))
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--odb_path', required=True)
-    parser.add_argument('--tasks_json', required=True)
-    args, unknown = parser.parse_known_args()
-    extract_from_odb(args)
+        raise ValueError("unsupported result_name: %s" % name)
 
+if __name__ == '__main__':
+    hookkit.run(extract_one, source_arg='--odb_path')
 ```
+
+### Quick start (INP / mdb)
+
+```python
+# my_mass_extract.py
+import os, sys
+sys.path.insert(0, os.getcwd())
+import hookkit
+
+def extract_one(inp_path, task):
+    from abaqus import mdb
+    name = task['result_name']
+
+    mdb.ModelFromInputFile(name='_hook_temp', inputFileName=inp_path)
+    if 'Model-1' in mdb.models:
+        del mdb.models['Model-1']
+
+    root_assembly = mdb.models['_hook_temp'].rootAssembly
+    region = root_assembly.sets['ALL'].elements
+
+    if name == 'total_mass':
+        mass = root_assembly.getMassProperties(regions=region)['mass']
+        return hookkit.scalar(mass)
+
+    raise ValueError("unsupported result_name: %s" % name)
+
+if __name__ == '__main__':
+    hookkit.run(extract_one, source_arg='--inp_path')
+```
+
+### Field output (large data → CSV sidecar)
+
+For field quantities (stress tensors, displacement fields), use `hookkit.field()`:
+
+```python
+def extract_one(odb_path, task):
+    from odbAccess import openOdb
+    name = task['result_name']
+
+    with hookkit.opened(openOdb(path=odb_path, readOnly=True)) as odb:
+        frame = odb.steps['Step-1'].frames[-1]
+
+        if name == 'stress_field':
+            vals = frame.fieldOutputs['S'].values
+            rows = [[v.elementLabel, v.mises] for v in vals]
+            columns = task.get('columns', ['element_label', 'mises_stress'])
+            return hookkit.field(task, rows, columns)
+
+        raise ValueError("unsupported result_name: %s" % name)
+```
+
+Three output modes, controlled by `"output"` in the task dict:
+
+| `"output"` | Behavior |
+|------------|----------|
+| `"inline"` | Return through stdout JSON (always) |
+| `"file"`   | Write CSV + return a lightweight envelope (always) |
+| (unset)    | Auto: >10k rows or >1MB → file, else inline |
+
+Mode is declared in the Spec — the hook script stays the same:
+
+```python
+HookSpec(
+    script_path = "./hooks/get_stress_field.py",
+    tasks = [{"result_name": "stress_field", "output": "file"}]
+)
+```
+
+### Task dict reference
+
+Your hook receives tasks as `task` dicts. Only `result_name` is required; every other key is user-defined and read by your `extract_one` via `task.get()`.
+
+| Key | Required | Used by | Purpose |
+|-----|----------|---------|---------|
+| `result_name` | **yes** | hookkit + your code | Result key in the output dict; file name for sidecar CSV |
+| `output` | no | `hookkit.field()` | `"inline"` / `"file"` — controls field representation |
+| `step` | no | your code | ODB step name (e.g. `task.get('step', 'Step-1')`) |
+| `columns` | no | your code + `hookkit.field()` | CSV column headers for field output |
+| *(any other)* | no | your code | Freely defined — hookkit passes everything through transparently |
 
 
 ## License Token Planning

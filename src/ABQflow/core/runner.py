@@ -7,8 +7,10 @@ JSON extraction, timeout-safe command execution, solver diagnostics, and a
 
 from __future__ import annotations
 from dataclasses import dataclass, field
+import hashlib
 import json
 import os
+import shutil
 import sys
 import time
 import uuid
@@ -18,6 +20,12 @@ import logging
 from .context import JobContext
 from .diagnostics import diagnose, apply_truth_table, SolverResult, SolverDiagnostics
 from ..helpers.constant import RESULT_BEGIN, RESULT_END
+
+# ---------------------------------------------------------------------------
+# Path to hookkit.py (staged into job output dir so hooks can import it)
+# ---------------------------------------------------------------------------
+_HOOKKIT_SRC = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'hookkit.py')
+_SIDECAR_KEY = '__file__'
 
 # ---------------------------------------------------------------------------
 # IMP-03: escalation-ladder constants
@@ -162,6 +170,90 @@ class AbaqusRunner:
 				os.remove(lck)
 			except OSError as e:
 				self.logger.error(f"Failed to remove .lck: {e}")
+
+	# ---- hookkit staging (HK-01 §3.5) ----
+	def _stage_hookkit(self):
+		"""Copy ``hookkit.py`` into the job output dir so hooks can ``import hookkit``.
+
+		Uses content-hash comparison: if an identical file already exists the
+		copy is skipped (re-run safe).  The file is NOT deleted afterwards —
+		it is a reproducible artifact of the job run.
+		"""
+		if not os.path.isfile(_HOOKKIT_SRC):
+			self.logger.warning("hookkit.py not found at %s — hooks using hookkit will fail", _HOOKKIT_SRC)
+			return
+
+		dst = os.path.join(self.ctx.output_dir, 'hookkit.py')
+		if os.path.isfile(dst):
+			with open(_HOOKKIT_SRC, 'rb') as f:
+				src_hash = hashlib.sha256(f.read()).hexdigest()
+			with open(dst, 'rb') as f:
+				dst_hash = hashlib.sha256(f.read()).hexdigest()
+			if src_hash == dst_hash:
+				return  # already present and identical
+		shutil.copy2(_HOOKKIT_SRC, dst)
+
+	# ---- envelope validation (HK-01 §3.6) ----
+	@staticmethod
+	def _validate_envelope(value: dict, output_dir: str, logger: logging.Logger) -> dict | None:
+		"""Validate a sidecar envelope and return an enriched copy, or ``None``.
+
+		Steps (in order):
+		1. Path safety — reject ``../`` escapes and absolute paths.
+		2. Existence — reject missing or zero-byte files.
+		3. Metadata augmentation — fill missing ``columns`` / ``shape``;
+		   if claimed ``shape`` differs from file, overwrite + warn.
+		"""
+		if not isinstance(value, dict):
+			return value  # not a sidecar
+
+		file_name = value.get(_SIDECAR_KEY)
+		if not file_name:
+			return value  # not a sidecar
+
+		# 1. Path safety
+		abs_path = os.path.normpath(os.path.join(output_dir, file_name))
+		if not abs_path.startswith(os.path.normpath(output_dir) + os.sep):
+			logger.warning(
+				"Sidecar path escape rejected: '%s' → result set to None", file_name
+			)
+			return None
+
+		# 2. Existence
+		if not os.path.isfile(abs_path) or os.path.getsize(abs_path) == 0:
+			logger.warning(
+				"Sidecar file missing or empty: '%s' → result set to None", abs_path
+			)
+			return None
+
+		# 3. Metadata augmentation — file is authoritative
+		import csv as _csv
+		enriched = dict(value)
+
+		try:
+			with open(abs_path, 'r', newline='') as f:
+				reader = _csv.reader(f)
+				header = next(reader)
+				actual_rows = sum(1 for _ in reader)
+		except Exception as e:
+			logger.warning("Cannot read sidecar CSV '%s': %s → result set to None", abs_path, e)
+			return None
+
+		actual_n_cols = len(header)
+
+		# Warn if claimed shape differs from reality (envelope-lying detection)
+		claimed_shape = enriched.get('shape')
+		if claimed_shape is not None:
+			if claimed_shape[0] != actual_rows or claimed_shape[1] != actual_n_cols:
+				logger.warning(
+					"Sidecar shape mismatch: claimed %s, file has [%d, %d] — using file",
+					claimed_shape, actual_rows, actual_n_cols,
+				)
+
+		enriched['columns'] = header
+		enriched['shape'] = [actual_rows, actual_n_cols]
+
+		return enriched
 
 	# ---- Execution environment selection (fix B5/B6/B11) ----
 	def _base_command(self, script: str, needs_cae_kernel: bool) -> list[str]:
@@ -379,8 +471,15 @@ class AbaqusRunner:
 
 		Writes tasks to a temporary JSON file, launches the script via
 		:meth:`_base_command` (so the correct environment is used), appends
-		``common_args`` and ``--tasks_json``, then extracts the JSON result
-		payload from stdout.
+		``common_args``, ``--job_name``, and ``--tasks_json``, then extracts
+		the JSON result payload from stdout.
+
+		Before execution, :meth:`_stage_hookkit` copies ``hookkit.py`` into
+		the job output directory so hooks can ``import hookkit``.
+
+		After execution, every sidecar envelope in the results dict passes
+		through :meth:`_validate_envelope` for path-safety, existence, and
+		metadata-augmentation checks.
 
 		Parameters
 		----------
@@ -409,11 +508,14 @@ class AbaqusRunner:
 			cmd = self._base_command(script_path, needs_cae_kernel)
 			for k, v in common_args.items():
 				cmd += [k, str(v)]
+			cmd += ['--job_name', self.ctx.job_name]
 			cmd += ['--tasks_json', '<generated-at-runtime>']
 			self.command_log.append(CommandRecord(f'hook:{script_path}', cmd, self.ctx.output_dir))
 			self.logger.info(f"[record_only] would run hook: {' '.join(cmd)}")
-			# Return fake results — task names from tasks list
 			return {t['result_name']: None for t in tasks}
+
+		# Stage hookkit into the job output dir (HK-01 §3.5)
+		self._stage_hookkit()
 
 		tmp = os.path.join(self.ctx.output_dir, f"tasks_{uuid.uuid4().hex}.json")
 		try:
@@ -423,12 +525,22 @@ class AbaqusRunner:
 			cmd = self._base_command(script_path, needs_cae_kernel)
 			for k, v in common_args.items():
 				cmd += [k, str(v)]
+			cmd += ['--job_name', self.ctx.job_name]
 			cmd += ['--tasks_json', tmp]
 
 			proc = self._run(cmd)
 			if proc is None:
 				return {t['result_name']: None for t in tasks}
-			return extract_json(proc.stdout)
+
+			results = extract_json(proc.stdout)
+
+			# Validate sidecar envelopes (HK-01 §3.6)
+			for name, value in list(results.items()):
+				if isinstance(value, dict) and _SIDECAR_KEY in value:
+					validated = self._validate_envelope(value, self.ctx.output_dir, self.logger)
+					results[name] = validated
+
+			return results
 		finally:
 			if os.path.exists(tmp):
 				# os.remove(tmp)

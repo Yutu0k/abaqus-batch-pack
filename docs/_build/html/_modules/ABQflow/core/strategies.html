@@ -261,6 +261,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbaqusRunner</span><span class="p">,</span> <span class="n">extract_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolverResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="n">JobStatusManager</span>
 
 <span class="c1"># Regex for {{placeholder}} in INP files (B8)</span>
@@ -478,6 +479,7 @@
 			<span class="k">return</span> <span class="kc">False</span>
 
 		<span class="c1"># 4. Resolve *INCLUDE paths to absolute paths</span>
+		<span class="c1"># TODO: 目前还是要求两个INP之间的相对路径是准确的, 而不是直接使用source_inp_path做替换</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_includes</span><span class="p">:</span>
 			<span class="n">source_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_inp_path</span><span class="p">))</span>
 
@@ -749,7 +751,7 @@
 <div class="viewcode-block" id="ModularWorkflowStrategy">
 <a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.ModularWorkflowStrategy">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModularWorkflowStrategy</span><span class="p">(</span><span class="n">JobWorkflowStrategy</span><span class="p">):</span>
-<span class="w">	</span><span class="sd">&quot;&quot;&quot;4-phase pipeline: preparation, pre-extraction, simulation, post-extraction.</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;5-phase pipeline: preparation, [preflight], pre-extraction, simulation, post-extraction.</span>
 
 <span class="sd">	Uses a :class:`JobStatusManager` internally to track the job through</span>
 <span class="sd">	each phase.  If any phase fails the pipeline stops and returns the</span>
@@ -759,6 +761,8 @@
 <span class="sd">	----------</span>
 <span class="sd">	preparation_strategy : PreparationStrategy</span>
 <span class="sd">		Strategy that produces the INP file.</span>
+<span class="sd">	preflight_mode : str or None</span>
+<span class="sd">		``&#39;syntaxcheck&#39;``, ``&#39;datacheck&#39;``, or ``None`` (IMP-04).</span>
 <span class="sd">	pre_extraction_strategies : list[ExtractionStrategy]</span>
 <span class="sd">		Strategies run before the solver (e.g. property extraction from INP).</span>
 <span class="sd">	post_extraction_strategies : list[ExtractionStrategy]</span>
@@ -770,16 +774,20 @@
 		<span class="n">preparation_strategy</span><span class="p">:</span> <span class="n">PreparationStrategy</span><span class="p">,</span>
 		<span class="n">pre_extraction_strategies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExtractionStrategy</span><span class="p">],</span>
 		<span class="n">post_extraction_strategies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExtractionStrategy</span><span class="p">],</span>
+		<span class="n">preflight_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+		<span class="n">preflight_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 	<span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">preparation_strategy</span> <span class="o">=</span> <span class="n">preparation_strategy</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span> <span class="o">=</span> <span class="n">preflight_mode</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">pre_extraction_strategies</span> <span class="o">=</span> <span class="n">pre_extraction_strategies</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">post_extraction_strategies</span> <span class="o">=</span> <span class="n">post_extraction_strategies</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">preflight_only</span> <span class="o">=</span> <span class="n">preflight_only</span>
 
 <div class="viewcode-block" id="ModularWorkflowStrategy.execute">
 <a class="viewcode-back" href="../../../source/ABQflow.core.html#ABQflow.ModularWorkflowStrategy.execute">[docs]</a>
 	<span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">JobContext</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">AbaqusRunner</span><span class="p">,</span>
 				<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">		</span><span class="sd">&quot;&quot;&quot;Run the 4-phase modular workflow.</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Run the modular workflow (5 phases with optional preflight).</span>
 
 <span class="sd">		Returns a dict with at least a ``&#39;status&#39;`` key plus any results</span>
 <span class="sd">		from pre- and post-extraction hooks.  Failing early means later</span>
@@ -796,21 +804,45 @@
 			<span class="k">return</span> <span class="n">all_results</span>
 		<span class="n">status_manager</span><span class="o">.</span><span class="n">record_preparation</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-		<span class="c1"># 2. Pre-extraction</span>
+		<span class="c1"># 2. Preflight (IMP-04: inserted before pre-extraction for fail-fast)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span><span class="si">}</span><span class="s2">]: checking INP...&quot;</span><span class="p">)</span>
+			<span class="n">passed</span><span class="p">,</span> <span class="n">pf_errors</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_preflight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span><span class="p">)</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">passed</span><span class="p">:</span>
+				<span class="n">status_manager</span><span class="o">.</span><span class="n">record_preflight</span><span class="p">(</span>
+					<span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+					<span class="n">error</span><span class="o">=</span><span class="n">pf_errors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">pf_errors</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span><span class="si">}</span><span class="s2">] failed&quot;</span><span class="p">,</span>
+				<span class="p">)</span>
+				<span class="n">all_results</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status_manager</span><span class="o">.</span><span class="n">get_final_status</span><span class="p">()</span>
+				<span class="k">return</span> <span class="n">all_results</span>
+			<span class="n">status_manager</span><span class="o">.</span><span class="n">record_preflight</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preflight [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">preflight_mode</span><span class="si">}</span><span class="s2">]: passed&quot;</span><span class="p">)</span>
+
+		<span class="c1"># IMP-04: preflight_only mode — stop after preflight, skip solver &amp; extraction</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preflight_only</span><span class="p">:</span>
+			<span class="n">all_results</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status_manager</span><span class="o">.</span><span class="n">get_final_status</span><span class="p">()</span>
+			<span class="k">return</span> <span class="n">all_results</span>
+
+		<span class="c1"># 3. Pre-extraction</span>
 		<span class="k">for</span> <span class="n">strategy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_extraction_strategies</span><span class="p">:</span>
 			<span class="n">pre_ext_results</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 			<span class="n">status_manager</span><span class="o">.</span><span class="n">record_extraction</span><span class="p">(</span><span class="n">pre_ext_results</span><span class="p">)</span>
 			<span class="n">all_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pre_ext_results</span><span class="p">)</span>
 
-		<span class="c1"># 3. Simulation</span>
-		<span class="n">run_successful</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_solver</span><span class="p">()</span>
-		<span class="k">if</span> <span class="ow">not</span> <span class="n">run_successful</span><span class="p">:</span>
-			<span class="n">status_manager</span><span class="o">.</span><span class="n">record_simulation</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+		<span class="c1"># 4. Simulation (IMP-02: diagnostics-backed verdict)</span>
+		<span class="n">solver_result</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_solver</span><span class="p">()</span>
+		<span class="c1"># Attach diagnostics on failure and on the rc≠0+COMPLETED edge case</span>
+		<span class="k">if</span> <span class="n">solver_result</span><span class="o">.</span><span class="n">diagnostics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">solver_result</span><span class="o">.</span><span class="n">success</span> <span class="ow">or</span> <span class="n">solver_result</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+				<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+				<span class="n">all_results</span><span class="p">[</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="n">solver_result</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">solver_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+			<span class="n">status_manager</span><span class="o">.</span><span class="n">record_simulation</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">solver_result</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
 			<span class="n">all_results</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status_manager</span><span class="o">.</span><span class="n">get_final_status</span><span class="p">()</span>
 			<span class="k">return</span> <span class="n">all_results</span>
 		<span class="n">status_manager</span><span class="o">.</span><span class="n">record_simulation</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-		<span class="c1"># 4. Post-extraction</span>
+		<span class="c1"># 5. Post-extraction</span>
 		<span class="k">for</span> <span class="n">strategy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_extraction_strategies</span><span class="p">:</span>
 			<span class="n">post_ext_results</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 			<span class="n">status_manager</span><span class="o">.</span><span class="n">record_extraction</span><span class="p">(</span><span class="n">post_ext_results</span><span class="p">)</span>

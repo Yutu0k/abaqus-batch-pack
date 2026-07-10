@@ -124,9 +124,10 @@ def generate_from_inp_files(
 	naming : str
 		Job-name generation rule:
 
-		* ``'stem'`` (default) — use the INP filename without extension,
+		* ``'stem'`` (default) - use the INP filename without extension,
 		sanitised via :func:`sanitize_job_name`.
-		* ``'indexed'`` — ``{base_spec.job_name}_{i:04d}``.
+		* ``'indexed'`` - ``{base_spec.job_name}_{i:04d}``.
+		
 	sort : bool
 		If ``True`` (default), sort files by natural key order.
 

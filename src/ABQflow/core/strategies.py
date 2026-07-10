@@ -212,6 +212,7 @@ class ExistingInpStrategy(PreparationStrategy):
 			return False
 
 		# 4. Resolve *INCLUDE paths to absolute paths
+		# TODO: 目前还是要求两个INP之间的相对路径是准确的, 而不是直接使用source_inp_path做替换
 		if self.resolve_includes:
 			source_dir = os.path.dirname(os.path.abspath(self.source_inp_path))
 
